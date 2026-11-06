@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Documentation logicielle — Modèle MT/BT ANSER</title>
+<link rel="stylesheet" href="style.css">
+<style>
+@page { @bottom-left { content: "ANSER — Plateforme PLE RDC · Documentation logicielle"; } }
+@page :first { @bottom-left { content: ""; border-top: none; } @bottom-right { content: ""; border-top: none; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ============================ COUVERTURE ============================ -->
+<section class="couverture">
+  <div class="filet"></div>
+  <h1>Préconception automatique des réseaux de distribution MT/BT</h1>
+  <p class="chapeau">Documentation technique — architecture logicielle, modèle de
+  données et algorithmes du moteur de planification géospatiale de la Plateforme
+  PLE&nbsp;RDC.</p>
+
+  <table class="identite">
+    <tr><th>Client</th><td>Agence Nationale de l'Électrification et des Services Énergétiques en Milieu Rural et Périurbain (ANSER)</td></tr>
+    <tr><th>Projet</th><td>Extension de la Plateforme PLE&nbsp;RDC — Module 2 : préconception automatique du réseau de distribution</td></tr>
+    <tr><th>Objet</th><td>Documentation d'ingénierie logicielle (pipeline, schéma <code>plan</code>, algorithmes, exploitation)</td></tr>
+    <tr><th>Version</th><td>1.0 — 22 octobre 2026</td></tr>
+    <tr><th>Périmètre</th><td>11 agglomérations du Kwilu et de la Tshopo — 413 355 ménages desservis</td></tr>
+    <tr><th>Statut</th><td><span class="tampon">Validé — recette interne</span></td></tr>
+  </table>
+
+  <div class="kpi">
+    <div><span class="valeur">11</span><span class="libelle">agglomérations</span></div>
+    <div><span class="valeur">2 891</span><span class="libelle">postes HTA/BT</span></div>
+    <div><span class="valeur">1 756&nbsp;km</span><span class="libelle">réseau MT</span></div>
+    <div><span class="valeur">10 837&nbsp;km</span><span class="libelle">desserte BT</span></div>
+  </div>
+
+  <div class="sommaire">
+    <div><span class="n">1</span>Objet et périmètre</div>
+    <div><span class="n">2</span>Architecture logicielle</div>
+    <div><span class="n">3</span>Modèle de données <code>plan</code></div>
+    <div><span class="n">4</span>Pipeline d'exécution</div>
+    <div><span class="n">5</span>Algorithmes de construction</div>
+    <div><span class="n">6</span>Performance et robustesse</div>
+    <div><span class="n">7</span>Visualisation cartographique</div>
+    <div><span class="n">8</span>Validation, limites et évolutions</div>
+    <div><span class="n">9</span>Annexes techniques</div>
+  </div>
+
+</section>
+
+<!-- ============================== 1. OBJET ============================= -->
+<section class="sec saute">
+  <h2><span class="num">1</span>Objet et périmètre</h2>
+
+  <p>Le module transforme des données ouvertes (bâtiments et voirie OpenStreetMap,
+  complétées par les données de population de la plateforme) en une
+  <strong>préconception géométrique</strong> des réseaux de distribution
+  électrique&nbsp;: emplacement des postes HTA/BT, tracé du réseau moyenne tension
+  (MT) et desserte basse tension (BT) le long de la voirie. Il produit une
+  géométrie exploitable par un bureau d'études, un métrage et une carte
+  interactive, sans réaliser de calcul électrique.</p>
+
+  <h3>1.1 Questions auxquelles le module répond</h3>
+  <ul>
+    <li>Combien de postes HTA/BT faut-il pour desservir une agglomération, et où
+        les implanter&nbsp;?</li>
+    <li>Quel tracé emprunte le réseau MT depuis le poste source, et quelles sont
+        les jonctions et les départs (feeders)&nbsp;?</li>
+    <li>Quel kilométrage de BT faut-il pour relier chaque bâtiment à son poste, et
+        quels bâtiments exigent un épi&nbsp;?</li>
+    <li>Quelles agglomérations présentent des lacunes de voirie et devront être
+        levées par une étude de terrain&nbsp;?</li>
+  </ul>
+
+  <h3>1.2 Contraintes de conception</h3>
+  <table class="tab">
+    <caption>Contraintes structurantes imposées au moteur.</caption>
+    <thead><tr><th style="width:34%">Contrainte</th><th>Mise en œuvre</th></tr></thead>
+    <tbody>
+      <tr><td>Écriture limitée au schéma <code>plan</code></td><td>Aucune écriture dans les tables applicatives&nbsp;; le schéma est créé et migré par le moteur.</td></tr>
+      <tr><td><code>etl.py</code> et tables applicatives intacts</td><td>Le module lit <code>batiments_rdc</code> en lecture seule, filtré par emprise.</td></tr>
+      <tr><td>Aucune dépendance Python supplémentaire</td><td>SQLAlchemy, GeoPandas, Shapely, pgRouting&nbsp;; la carte est du HTML/JS autonome.</td></tr>
+      <tr><td>Jamais de jointure globale sur <code>batiments_rdc</code></td><td>84,9&nbsp;M de lignes&nbsp;: tout accès est filtré par <code>ST_Contains</code> sur l'emprise de l'agglomération. Une jointure globale a déjà provoqué un redémarrage du serveur PostgreSQL.</td></tr>
+      <tr><td>Idempotence</td><td>Chaque commande remplace intégralement les objets de l'agglomération traitée&nbsp;; rejouable sans nettoyage manuel.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="encadre">
+    <span class="titre">Ce que le module ne fait pas</span>
+    <p>Le moteur ne calcule ni chute de tension, ni foisonnement, ni courant de
+    court-circuit, ni section de câble, ni marché de poteaux ou de transformateurs.
+    Les tensions et le plafond de ménages sont des paramètres de dimensionnement
+    destinés à être repris par les modules électrotechniques (voir la documentation
+    destinée à l'ingénieur électricien).</p>
+  </div>
+</section>
+
+<!-- =========================== 2. ARCHITECTURE ========================= -->
+<section class="sec">
+  <h2><span class="num">2</span>Architecture logicielle</h2>
+
+  <p>Le système est une chaîne de traitement <strong>batch, un processus, sans
+  service applicatif</strong>&nbsp;: une base PostgreSQL/PostGIS/PgRouting sert de
+  source et de magasin de résultats, un exécutable Python orchestre les calculs,
+  deux sorties sont produites — une synthèse tabulaire et une carte autonome.</p>
+
+  <figure class="schema">
+    <svg viewBox="0 0 980 300" role="img" aria-label="Chaîne de traitement">
+      <defs>
+        <marker id="fl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#1f5f9e"/>
+        </marker>
+      </defs>
+      <g font-size="11" fill="#16202b">
+        <!-- boîtes -->
+        <g>
+          <rect x="8" y="52" width="176" height="120" rx="4" fill="#f4f6f8" stroke="#8fa0b1" stroke-width="1.2"/>
+          <text x="20" y="74" font-weight="700" fill="#14314f" font-size="12">Sources</text>
+          <text x="20" y="94">bâtiments OSM (84,9 M)</text>
+          <text x="20" y="111">voirie OSM (graphe)</text>
+          <text x="20" y="128">population PLE</text>
+          <text x="20" y="145" fill="#4a5a6a">backup pg_dump</text>
+        </g>
+        <g>
+          <rect x="216" y="52" width="196" height="120" rx="4" fill="#eef3f8" stroke="#1f5f9e" stroke-width="1.4"/>
+          <text x="228" y="74" font-weight="700" fill="#14314f" font-size="12">PostgreSQL 18</text>
+          <text x="228" y="94">PostGIS 3.6</text>
+          <text x="228" y="111">pgRouting 4.0.1</text>
+          <text x="228" y="130" font-weight="600" fill="#1f5f9e">schéma plan</text>
+          <text x="228" y="147" fill="#4a5a6a">road · zone · noeud</text>
+          <text x="228" y="162" fill="#4a5a6a">ligne · derive · agg_statut</text>
+        </g>
+        <g>
+          <rect x="444" y="52" width="176" height="120" rx="4" fill="#f4f6f8" stroke="#8fa0b1" stroke-width="1.2"/>
+          <text x="456" y="74" font-weight="700" fill="#14314f" font-size="12">Moteur Python</text>
+          <text x="456" y="94">plan_electricite.py</text>
+          <text x="456" y="111" fill="#4a5a6a">nodes · lines · agg</text>
+          <text x="456" y="128" fill="#4a5a6a">report · plan</text>
+          <text x="456" y="147" fill="#4a5a6a">SQLAlchemy + psycopg 3</text>
+        </g>
+        <g>
+          <rect x="652" y="52" width="150" height="120" rx="4" fill="#f4f6f8" stroke="#8fa0b1" stroke-width="1.2"/>
+          <text x="664" y="74" font-weight="700" fill="#14314f" font-size="12">Livrables</text>
+          <text x="664" y="94">agg_statut</text>
+          <text x="664" y="111">GeoJSON / GPKG</text>
+          <text x="664" y="128">rapport console</text>
+          <text x="664" y="147" fill="#4a5a6a">visu_plan.py</text>
+        </g>
+        <g>
+          <rect x="834" y="52" width="138" height="120" rx="4" fill="#fdf8ef" stroke="#b58b2a" stroke-width="1.4"/>
+          <text x="846" y="74" font-weight="700" fill="#14314f" font-size="12">Carte</text>
+          <text x="846" y="94">Leaflet autonome</text>
+          <text x="846" y="111">HTML 23,4 Mo</text>
+          <text x="846" y="128" fill="#4a5a6a">MT · BT · épis</text>
+          <text x="846" y="145" fill="#4a5a6a">KPI · filtres</text>
+        </g>
+        <!-- flèches -->
+        <line x1="186" y1="112" x2="210" y2="112" stroke="#1f5f9e" stroke-width="1.6" marker-end="url(#fl)"/>
+        <line x1="414" y1="112" x2="438" y2="112" stroke="#1f5f9e" stroke-width="1.6" marker-end="url(#fl)"/>
+        <line x1="622" y1="112" x2="646" y2="112" stroke="#1f5f9e" stroke-width="1.6" marker-end="url(#fl)"/>
+        <line x1="804" y1="112" x2="828" y2="112" stroke="#1f5f9e" stroke-width="1.6" marker-end="url(#fl)"/>
+        <!-- bande outils -->
+        <rect x="216" y="196" width="756" height="74" rx="4" fill="#fff" stroke="#c9d2db" stroke-width="1"/>
+        <text x="228" y="217" font-weight="700" font-size="10.5" fill="#14314f">Bibliothèques mobilisées</text>
+        <text x="228" y="235" font-size="10">pgRouting : pgr_dijkstra (SPT multi-cibles), composantes connexes · PostGIS : ST_ClusterKMeans, KNN &lt;-&gt;, GIST</text>
+        <text x="228" y="252" font-size="10">Python : GeoPandas / pyogrio (export), Shapely, SQLAlchemy · Front : Leaflet + tuiles OSM (option « sans fond »)</text>
+        <text x="8" y="290" font-size="9.5" fill="#4a5a6a">Aucun service applicatif : chaque commande est un job batch transactionnel, exécutable en local ou planifié.</text>
+      </g>
+    </svg>
+    <figcaption>Figure 1 — Chaîne de traitement de la donnée brute à la carte interactive.</figcaption>
+  </figure>
+
+  <h3>2.1 Composants</h3>
+  <table class="tab compact">
+    <thead><tr><th style="width:24%">Composant</th><th style="width:34%">Rôle</th><th>Points de vigilance</th></tr></thead>
+    <tbody>
+      <tr><td><code>plan.road*</code></td><td>Graphe de routage (arêtes, sommets, composantes connexes)</td><td>Voirie rurale incomplète&nbsp;: les composantes isolées sont normales.</td></tr>
+      <tr><td><code>plan.zone</code></td><td>Zones de distribution issues de DBSCAN/KMeans</td><td>Découpage conditionné par la densité de bâtiments.</td></tr>
+      <tr><td><code>plan.noeud</code></td><td>Poste source, postes HTA/BT, jonctions</td><td>Plusieurs postes peuvent partager un sommet routier.</td></tr>
+      <tr><td><code>plan.ligne</code></td><td>Tronçons MT, troncs BT, liaisons directes</td><td>Géométrie générique&nbsp;: <code>LineString</code> (MT) ou <code>MultiLineString</code> (BT).</td></tr>
+      <tr><td><code>plan.derive</code></td><td>Épis BT (bâtiment → tronc)</td><td>Un enregistrement par bâtiment raccordé hors voirie.</td></tr>
+      <tr><td><code>plan.agg_statut</code></td><td>Synthèse par agglomération</td><td>Recalculée à chaque exécution&nbsp;; contrôle de cohérence.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- =========================== 3. MODELE DE DONNEES =================== -->
+<section class="sec">
+  <h2><span class="num">3</span>Modèle de données <code>plan</code></h2>
+
+  <p>Le schéma est volontairement plat et dénormalisé&nbsp;: chaque objet porte
+  directement son <code>agglomeration_id</code>, ce qui permet de purger et
+  recalculer une agglomération sans toucher aux autres. Les liens topologiques
+  (parent, tronçon, feeder) sont matérialisés par des colonnes, pas par des clés
+  étrangères, pour accélérer les rechargements massifs.</p>
+
+  <figure class="schema">
+    <svg viewBox="0 0 980 330" role="img" aria-label="Modèle de données">
+      <g font-size="10" fill="#16202b">
+        <!-- road -->
+        <rect x="8" y="16" width="200" height="84" rx="3" fill="#f4f6f8" stroke="#8fa0b1"/>
+        <text x="18" y="34" font-weight="700" fill="#14314f" font-size="11">plan.road</text>
+        <text x="18" y="50">id · source · target</text>
+        <text x="18" y="64">cost · reverse_cost</text>
+        <text x="18" y="78">geom LINESTRING · fclass</text>
+        <text x="18" y="92" fill="#4a5a6a">~ 2 700 à 40 000 arêtes / agg.</text>
+
+        <!-- road_vertex -->
+        <rect x="8" y="122" width="200" height="66" rx="3" fill="#f4f6f8" stroke="#8fa0b1"/>
+        <text x="18" y="140" font-weight="700" fill="#14314f" font-size="11">plan.road_vertex</text>
+        <text x="18" y="156">id · kx · ky</text>
+        <text x="18" y="170">geom POINT · index GIST</text>
+
+        <!-- road_component -->
+        <rect x="8" y="206" width="200" height="56" rx="3" fill="#f4f6f8" stroke="#8fa0b1"/>
+        <text x="18" y="224" font-weight="700" fill="#14314f" font-size="11">plan.road_component</text>
+        <text x="18" y="240">node → component</text>
+        <text x="18" y="254" fill="#4a5a6a">composantes connexes non orientées</text>
+
+        <!-- zone -->
+        <rect x="262" y="16" width="200" height="84" rx="3" fill="#eef3f8" stroke="#1f5f9e"/>
+        <text x="272" y="34" font-weight="700" fill="#14314f" font-size="11">plan.zone</text>
+        <text x="272" y="50">agglomeration_id · zone_id</text>
+        <text x="272" y="64">nb_batiments · surface</text>
+        <text x="272" y="78">centroid · geom POLYGON</text>
+        <text x="272" y="92" fill="#4a5a6a">PK (agglomeration_id, zone_id)</text>
+
+        <!-- noeud -->
+        <rect x="262" y="122" width="200" height="140" rx="3" fill="#eef3f8" stroke="#1f5f9e"/>
+        <text x="272" y="140" font-weight="700" fill="#14314f" font-size="11">plan.noeud</text>
+        <text x="272" y="156">id · role · type_poste</text>
+        <text x="272" y="170">tension_kv · zone_id</text>
+        <text x="272" y="184">parent_noeud_id</text>
+        <text x="272" y="198">nb_batiments · n_menages</text>
+        <text x="272" y="212">vertex_id · snap_distance_m</text>
+        <text x="272" y="226">geom POINT</text>
+        <text x="272" y="240" fill="#1f5f9e" font-weight="600">zone_centroid POINT (GIST)</text>
+        <text x="272" y="254" fill="#4a5a6a">role : source | sous_station | jonction</text>
+
+        <!-- ligne -->
+        <rect x="512" y="16" width="212" height="140" rx="3" fill="#fdf8ef" stroke="#b58b2a"/>
+        <text x="522" y="34" font-weight="700" fill="#14314f" font-size="11">plan.ligne</text>
+        <text x="522" y="50">id · type_ligne · statut</text>
+        <text x="522" y="64">noeud_depart · noeud_arrivee</text>
+        <text x="522" y="78">troncon_id · feeder_id</text>
+        <text x="522" y="92">longueur_m · longueur_geom_m</text>
+        <text x="522" y="106">nb_aretes · n_menages</text>
+        <text x="522" y="120">detour_ratio · longueur_refusee_m</text>
+        <text x="522" y="134">geom GEOMETRY(4326)</text>
+        <text x="522" y="148" fill="#4a5a6a">MT = LigneString · BT = MultiLineString</text>
+
+        <!-- derive -->
+        <rect x="512" y="180" width="212" height="82" rx="3" fill="#fdf8ef" stroke="#b58b2a"/>
+        <text x="522" y="198" font-weight="700" fill="#14314f" font-size="11">plan.derive</text>
+        <text x="522" y="214">noeud_id · zone_id</text>
+        <text x="522" y="228">longueur_m · d_tronc_m</text>
+        <text x="522" y="242">geom LINESTRING (épi)</text>
+        <text x="522" y="256" fill="#4a5a6a">un épi par bâtiment éloigné du tronc</text>
+
+        <!-- agg_statut -->
+        <rect x="768" y="16" width="200" height="120" rx="3" fill="#f3f7fb" stroke="#1f5f9e"/>
+        <text x="778" y="34" font-weight="700" fill="#14314f" font-size="11">plan.agg_statut</text>
+        <text x="778" y="50">agglomeration_id (PK)</text>
+        <text x="778" y="64">zones · postes · jonctions</text>
+        <text x="778" y="78">troncons_mt · troncs_bt · epis</text>
+        <text x="778" y="92">km_mt · km_bt · menages</text>
+        <text x="778" y="106">menages_raccordes · maj</text>
+        <text x="778" y="124" fill="#4a5a6a">synthèse &lt; 1 s pour le rapport</text>
+
+        <!-- flèches topologiques -->
+        <path d="M208 58 L258 58" stroke="#8fa0b1" stroke-width="1.2" marker-end="url(#fl2)"/>
+        <path d="M462 58 L508 58" stroke="#8fa0b1" stroke-width="1.2" marker-end="url(#fl2)"/>
+        <path d="M462 190 L508 190" stroke="#8fa0b1" stroke-width="1.2" marker-end="url(#fl2)"/>
+        <path d="M724 58 L764 58" stroke="#8fa0b1" stroke-width="1.2" marker-end="url(#fl2)"/>
+        <path d="M362 122 L362 106" stroke="#8fa0b1" stroke-width="1.2" marker-end="url(#fl2)"/>
+        <path d="M108 122 L108 106" stroke="#8fa0b1" stroke-width="1.2" marker-end="url(#fl2)"/>
+        <path d="M108 206 L108 192" stroke="#8fa0b1" stroke-width="1.2" marker-end="url(#fl2)"/>
+
+        <text x="8" y="300" fill="#4a5a6a">Une agglomération = un lot autonome : purge et réécriture filtrées par <tspan font-family="Consolas, monospace" font-size="9.5">agglomeration_id</tspan>.</text>
+        <text x="8" y="318" fill="#4a5a6a">Les jonctions portent <tspan font-family="Consolas, monospace" font-size="9.5">parent_noeud_id</tspan> comme les postes ; la source est l'unique nœud sans parent.</text>
+      </g>
+      <defs>
+        <marker id="fl2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#8fa0b1"/>
+        </marker>
+      </defs>
+    </svg>
+    <figcaption>Figure 2 — Tables du schéma <code>plan</code> et relations topologiques.</figcaption>
+  </figure>
+
+  <h3>3.1 Index et intégrité</h3>
+  <ul>
+    <li><code>idx_plan_noeud_geom</code> et <code>idx_plan_noeud_centroid</code> (GIST)&nbsp;:
+        KNN des bâtiments respectivement sur le sommet routier et sur le centroïde de zone.</li>
+    <li><code>idx_plan_road_vertex_geom</code> (GIST)&nbsp;: accrochage des postes et des bâtiments au réseau.</li>
+    <li><code>idx_plan_ligne_type</code> et <code>idx_plan_derive_agg</code>&nbsp;: restitution et carte.</li>
+    <li><code>idx_plan_noeud_role</code>&nbsp;: filtres source / postes / jonctions dans les requêtes d'arbre.</li>
+    <li>Contrôles systématiques&nbsp;: unicité des identifiants de sommets, somme des ménages
+        par agglomération, cohérence <code>agg_statut</code> / <code>ligne</code>.</li>
+  </ul>
+</section>
+
+<!-- ============================== 4. PIPELINE ========================== -->
+<section class="sec">
+  <h2><span class="num">4</span>Pipeline d'exécution</h2>
+
+  <p>Le calcul se fait en deux temps&nbsp;: <strong>nœuds</strong> (postes et
+  affectation des bâtiments), puis <strong>lignes</strong> (MT puis BT). La
+  commande <code>agg</code> enchaîne les deux pour une agglomération et
+  <code>plan</code> pour un lot complet. Chaque étape est transactionnelle et
+  remplace les objets existants de l'agglomération.</p>
+
+  <table class="tab">
+    <caption>Commandes principales et effets.</caption>
+    <thead><tr><th style="width:30%">Commande</th><th>Effet</th></tr></thead>
+    <tbody>
+      <tr><td><code>agg --only 87</code></td><td>Nœuds puis lignes de l'agglomération 87 si le calcul n'existe pas (sinon ignoré, sauf <code>--force</code>).</td></tr>
+      <tr><td><code>nodes --only 87</code></td><td>Poste source, postes HTA/BT, affectation des bâtiments, centroïdes de zone.</td></tr>
+      <tr><td><code>lines --only 87</code></td><td>Tronçons MT, jonctions, troncs BT, épis, statuts et synthèse.</td></tr>
+      <tr><td><code>report</code></td><td>Synthèse console des agglomérations calculées, export tabulaire optionnel.</td></tr>
+      <tr><td><code>plan --only 22 32</code></td><td>Enchaînement complet (périmètre, graphe, zones, nœuds, lignes) pour les identifiants donnés.</td></tr>
+    </tbody>
+  </table>
+
+  <pre class="code">export MSYS_NO_PATHCONV=1
+cd /c/Users/PC/Documents/Anser_avenat/data
+
+# recalcul d'une agglomération
+./venv/bin/python plan_electricite.py nodes --only 32
+./venv/bin/python plan_electricite.py lines --only 32
+
+# lot complet, en tâche de fond
+for id in 22 32 1087 88 3664 3817 3624 3783 3520 3719; do
+  ./venv/bin/python plan_electricite.py nodes --only $id
+  ./venv/bin/python plan_electricite.py lines --only $id
+done</pre>
+
+  <h3>4.1 Séquence interne de <code>lines</code></h3>
+  <ol>
+    <li>Migration de schéma et création des index manquants (<code>_migrate_schema</code>).</li>
+    <li>Lecture des postes et du poste source, construction du graphe d'arêtes.</li>
+    <li><strong>MT</strong>&nbsp;: un <code>pgr_dijkstra</code> multi-cibles depuis la source, réduction
+        de l'arbre par <code>lead()</code> + <code>DISTINCT ON (child)</code>.</li>
+    <li>Coupe aux postes et aux jonctions (degré ≥ 3), numérotation <code>troncon_id</code>,
+        chaînage des tronçons et affectation des feeders.</li>
+    <li><strong>BT</strong>&nbsp;: pour chaque poste, accrochage de ses bâtiments à un sommet de sa
+        composante, puis un SPT élagué aux cibles, agrégé en <code>MultiLineString</code>.</li>
+    <li><strong>Épis</strong>&nbsp;: bâtiments au-delà du seuil, distance au tronc via
+        <code>ST_ClosestPoint</code>, insertion dans <code>plan.derive</code>.</li>
+    <li>Mise à jour de <code>agg_statut</code> et journalisation des replis
+        (liaisons directes MT et BT).</li>
+  </ol>
+</section>
+
+<!-- ============================ 5. ALGORITHMES ======================== -->
+<section class="sec">
+  <h2><span class="num">5</span>Algorithmes de construction</h2>
+
+  <h3>5.1 Zonage et découpage en postes</h3>
+  <p>Les bâtiments de l'agglomération sont agrégés en zones (DBSCAN, rayon
+  200&nbsp;m, minimum 10 points), puis chaque zone trop dense est scindée par
+  KMeans. Chaque zone est ensuite découpée en sous-groupes d'au plus
+  <code>--max-menages-poste</code> ménages (200 par défaut). Le découpage utilise
+  un ratio de sécurité <strong>0,85</strong>&nbsp;: les sous-groupes visent
+  170 ménages afin que l'affectation finale reste proche du plafond. Le centroïde
+  de chaque sous-groupe devient le point d'implantation théorique du poste.</p>
+
+  <h3>5.2 Accrochage des postes</h3>
+  <p>Chaque poste est accroché au sommet routier le plus proche, puis recalé dans
+  la <strong>composante de service</strong> (celle qui porte le plus de postes) si
+  un sommet s'y trouve à moins de <code>--max-snap-m</code> (1 500&nbsp;m). Au-delà,
+  il conserve son propre sommet&nbsp;: le poste sera alimenté par une liaison
+  directe MT. Plusieurs postes peuvent partager un sommet&nbsp;: le réseau MT est
+  mutualisé, mais chaque poste conserve son propre tronc BT.</p>
+
+  <div class="encadre note">
+    <span class="titre">Décision de conception</span>
+    <p>Les bâtiments sont affectés au poste via un KNN sur le
+    <strong>centroïde de zone</strong>, pas sur le sommet routier. Ce choix
+    équilibre la charge (moyenne 137–145 ménages, p90 ≈ 180) alors que le KNN
+    géométrique sur la voirie produisait des postes à près de 5 000 ménages en
+    zone rurale, où la voirie est très lâche.</p>
+  </div>
+
+  <h3>5.3 Réseau MT</h3>
+  <p>Un unique appel <code>pgr_dijkstra(edges, source, {postes})</code> calcule
+  l'arbre de plus courts chemins. Le résultat est réduit à un arbre par
+  <code>lead(node) OVER (PARTITION BY end_vid ORDER BY path_seq)</code> puis
+  <code>DISTINCT ON (child)</code>. L'arbre est ensuite coupé aux postes et aux
+  sommets de degré ≥ 3 (jonctions), ce qui produit des tronçons homogènes&nbsp;;
+  chaque tronçon reçoit un <code>troncon_id</code> et un <code>feeder_id</code>
+  (premier niveau depuis la source). Les branches sont chaînées par
+  <code>ST_MakeLine</code> ordonné, avec extrémités recalées sur la géométrie des
+  sommets.</p>
+
+  <pre class="code">arr  AS (SELECT end_vid, node, edge, agg_cost,
+               lead(node)     OVER (PARTITION BY end_vid ORDER BY path_seq) AS child,
+               lead(agg_cost) OVER (PARTITION BY end_vid ORDER BY path_seq) AS child_cost
+         FROM pgr_dijkstra(:edges, :src, CAST(:dst AS bigint[]))),
+spt  AS (SELECT DISTINCT ON (child) child, node AS parent, edge
+         FROM arr WHERE child IS NOT NULL AND edge >= 0
+         ORDER BY child, child_cost)</pre>
+
+  <h3>5.4 Desserte BT et épis</h3>
+  <p>Pour chaque poste, les bâtiments sont accrochés au sommet de la
+  <strong>composante de leur poste</strong> (table temporaire <code>_cv</code>
+  indexée GIST, construite composante par composante). Le SPT
+  <code>pgr_dijkstra(src → vids)</code> est élagué aux seuls sommets cibles, puis
+  agrégé en <code>MultiLineString</code>. Les bâtiments dont la distance au tronc
+  dépasse <code>--bt-seuil-epi</code> (150&nbsp;m) reçoivent un épi&nbsp;: segment
+  direct du point le plus proche du tronc au bâtiment. Si un poste n'a aucun tronc
+  (tous ses bâtiments sur son sommet), les épis partent directement du poste.</p>
+
+  <h3>5.5 Replis explicites</h3>
+  <table class="tab compact">
+    <thead><tr><th style="width:26%">Situation</th><th>Comportement</th><th style="width:22%">Statut</th></tr></thead>
+    <tbody>
+      <tr><td>Poste hors d'atteinte MT</td><td>Liaison droite du centroïde du poste vers le nœud le plus proche de l'arbre</td><td><code>liaison_directe</code> (MT)</td></tr>
+      <tr><td>Poste sans tronc BT</td><td>Desserte intégrale par épis depuis le poste</td><td><code>liaison_directe</code> (BT)</td></tr>
+      <tr><td>Bâtiment &gt; 150 m du tronc</td><td>Épi individuel dans <code>plan.derive</code></td><td>—</td></tr>
+      <tr><td>Tronçon MT &gt; 15 km</td><td>Tronçon refusé et signalé (<code>longueur_refusee_m</code>)</td><td>contrôle</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- =========================== 6. PERFORMANCE ========================= -->
+<section class="sec">
+  <h2><span class="num">6</span>Performance et robustesse</h2>
+
+  <h3>6.1 Points chauds</h3>
+  <p>Le coût dominant est le <strong>KNN des bâtiments</strong> et le
+  <strong>SPT BT par poste</strong>. Trois règles ont été validées empiriquement&nbsp;:</p>
+  <ul>
+    <li><strong>Filtrer par emprise avant tout accès aux bâtiments</strong>&nbsp;: une jointure
+        globale sur les 84,9&nbsp;M de lignes sature le serveur (redémarrages observés).</li>
+    <li><strong>KNN par composante sur une table indexée</strong>&nbsp;: un filtre
+        <code>component = …</code> appliqué directement sur <code>road_vertex</code>
+        force un balayage complet (17&nbsp;min pour 84&nbsp;k bâtiments)&nbsp;; la table
+        <code>_cv</code> par composante ramène l'étape à quelques minutes.</li>
+    <li><strong>SPT élagué aux cibles</strong>&nbsp;: ne conserver que les arêtes menant aux
+        sommets des bâtiments, jamais tout le graphe.</li>
+  </ul>
+
+  <h3>6.2 Mesures</h3>
+  <table class="tab compact">
+    <thead><tr><th>Agglomération</th><th class="n">Bâtiments</th><th class="n">Postes</th><th class="n">Nœuds</th><th class="n">Lignes</th></tr></thead>
+    <tbody>
+      <tr><td>87 — Bulungu</td><td class="n">13 176</td><td class="n">96</td><td class="n">45 s</td><td class="n">6–12 min</td></tr>
+      <tr><td>22 — Kikwit</td><td class="n">83 840</td><td class="n">582</td><td class="n">1 min 30</td><td class="n">3 min</td></tr>
+      <tr><td>32 — Kisangani</td><td class="n">176 769</td><td class="n">1 236</td><td class="n">10 min</td><td class="n">11 min</td></tr>
+      <tr><td>8 autres</td><td class="n">6 804 – 47 226</td><td class="n">47 – 329</td><td class="n">10–40 s</td><td class="n">10–75 s</td></tr>
+    </tbody>
+  </table>
+
+  <h3>6.3 Robustesse</h3>
+  <ul>
+    <li>Transactions par agglomération&nbsp;: une erreur n'altère pas les autres lots.</li>
+    <li>Reprise idempotente&nbsp;: purge ciblée puis réécriture complète.</li>
+    <li>Journalisation systématique des replis (composantes isolées, postes non atteignables).</li>
+    <li>Aucune table temporaire persistante&nbsp;: <code>_bat_zone</code>, <code>_bat_poste</code>,
+        <code>_bat_vert</code>, <code>_cv</code> vivent le temps de la session.</li>
+  </ul>
+</section>
+
+<!-- =========================== 7. VISUALISATION ======================== -->
+<section class="sec">
+  <h2><span class="num">7</span>Visualisation cartographique</h2>
+
+  <p><code>visu_plan.py export</code> interroge les cinq couches (périmètre, zones,
+  nœuds, lignes, épis) et écrit un <strong>HTML autonome</strong> dans lequel les
+  données GeoJSON sont inlinées. Aucun serveur n'est nécessaire&nbsp;; l'ouverture
+  se fait par double-clic, et le fond OSM peut être désactivé pour un usage hors
+  ligne.</p>
+
+  <table class="tab compact">
+    <thead><tr><th style="width:22%">Commande</th><th>Usage</th></tr></thead>
+    <tbody>
+      <tr><td><code>export</code></td><td>Génère <code>visu/plan_kwilu.html</code> (23,4 Mo pour 11 agglomérations).</td></tr>
+      <tr><td><code>serve --port 8000</code></td><td>Export puis service HTTP local (<code>localhost:8000</code>).</td></tr>
+      <tr><td><code>check</code></td><td>Valide le JSON inline, compte les entités, vérifie l'absence de dépendance CDN.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="legende">
+    <span class="mt">MT (tronçons)</span>
+    <span class="bt">BT (troncs)</span>
+    <span class="dir">liaison directe</span>
+    <span class="epi">épis BT</span>
+  </div>
+
+  <p>La couche BT est simplifiée à l'export
+  (<code>ST_SimplifyPreserveTopology(geom, 0.00002)</code>, soit ≈ 2&nbsp;m, et
+  GeoJSON à 5 décimales) afin de rester sous 25&nbsp;Mo sans dégradation visible
+  à l'échelle d'une agglomération. Le panneau latéral présente les KPI par
+  agglomération et permet de filtrer les couches.</p>
+</section>
+
+<!-- ========================== 8. VALIDATION =========================== -->
+<section class="sec">
+  <h2><span class="num">8</span>Validation, limites et évolutions</h2>
+
+  <h3>8.1 Contrôles automatiques passés</h3>
+  <table class="tab compact">
+    <thead><tr><th style="width:38%">Contrôle</th><th>Résultat (22/10/2026)</th></tr></thead>
+    <tbody>
+      <tr><td>Somme des ménages = nombre de bâtiments</td><td>Exact sur 87, 22, 32, 88&nbsp;; cohérent partout via <code>agg_statut</code>.</td></tr>
+      <tr><td>Charge par poste</td><td>Moyenne 137–145, p90 ≈ 180, maximum 372 (&lt; 2× le plafond).</td></tr>
+      <tr><td>Arbre MT</td><td>11/11 agglomérations&nbsp;: sommets géométriques = tronçons routables + 1.</td></tr>
+      <tr><td>Doublons d'identifiants</td><td>Aucun dans <code>road</code>, <code>road_vertex</code>, <code>road_component</code>.</td></tr>
+      <tr><td>Carte</td><td>JSON valide, 5 765 lignes, 64 047 épis, aucune dépendance CDN.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>8.2 Limites assumées</h3>
+  <ul>
+    <li><strong>Voirie OSM incomplète</strong>&nbsp;: en zone rurale, les bâtiments s'accrochent au
+        même sommet que leur poste&nbsp;; la desserte passe alors entièrement par épis, et
+        les postes sur composantes isolées reçoivent une liaison MT directe.</li>
+    <li><strong>Troncs BT non mutualisés</strong>&nbsp;: chaque poste tire son propre arbre&nbsp;;
+        deux postes voisins peuvent emprunter les mêmes rues, ce qui additionne des
+        tronçons partagés dans le kilométrage.</li>
+    <li><strong>Pas de calcul électrique</strong>&nbsp;: sections, chutes de tension, foisonnement
+        et coûts sont hors périmètre du module.</li>
+  </ul>
+
+  <h3>8.3 Évolutions recommandées</h3>
+  <ol>
+    <li>Tronc BT commun par feeder (arbre couvrant partagé) pour réduire le kilométrage.</li>
+    <li>Ajout d'un module de dimensionnement (sections, chutes de tension, poteaux).</li>
+    <li>API REST et file de tâches pour l'exécution à l'échelle provinciale.</li>
+    <li>Versionnement des jeux de données et des paramètres par scénario.</li>
+  </ol>
+</section>
+
+<!-- ============================== 9. ANNEXES ========================= -->
+<section class="sec">
+  <h2><span class="num">9</span>Annexes techniques</h2>
+
+  <h3>9.1 Extrait DDL — <code>plan.noeud</code></h3>
+  <pre class="code">CREATE TABLE plan.noeud (
+    id              bigserial PRIMARY KEY,
+    agglomeration_id integer NOT NULL,
+    role            varchar(20),   -- source | sous_station | jonction
+    type_poste      varchar(20),   -- source | poste_hta
+    tension_kv      double precision,
+    zone_id         integer,
+    parent_noeud_id integer,       -- nœud amont (NULL pour la source)
+    nb_batiments    integer,
+    n_menages       integer,
+    surface_batie_m2 double precision,
+    vertex_id       bigint,        -- sommet routier d'accrochage
+    snap_distance_m double precision,
+    geom            geometry(Point,4326),
+    zone_centroid   geometry(Point,4326)
+);
+CREATE INDEX idx_plan_noeud_centroid ON plan.noeud USING gist (zone_centroid);</pre>
+
+  <h3>9.2 Extraits de code et de paramètres</h3>
+  <table class="tab compact">
+    <thead><tr><th style="width:36%">Élément</th><th>Valeur / localisation</th></tr></thead>
+    <tbody>
+      <tr><td>Plafond par poste</td><td><code>--max-menages-poste 200</code>, ratio <code>POSTE_SPLIT_RATIO = 0.85</code></td></tr>
+      <tr><td>Accroche MT</td><td><code>--max-snap-m 1500</code>, <code>--max-troncon-km 15</code></td></tr>
+      <tr><td>BT</td><td><code>--bt-seuil-epi 150</code>, tension <code>0.4 kV</code></td></tr>
+      <tr><td>Zonage</td><td><code>--eps 200</code>, <code>--minpoints 10</code></td></tr>
+      <tr><td>Fonctions clés</td><td><code>_compute_nodes_agg</code>, <code>_compute_lines_agg</code>, <code>_bat_vert</code>, <code>_migrate_schema</code></td></tr>
+      <tr><td>Schéma</td><td><code>plan</code> — aucune écriture hors de ce schéma</td></tr>
+    </tbody>
+  </table>
+
+  <h3>9.3 Journal type (extrait)</h3>
+  <pre class="code">Agglomération 32 (Kisangani) : 1236 postes, 1176 tronçons MT (723.7 km),
+    1236 troncs BT (2994.2 km), 26307 épis, 176769 ménages desservis
+Agglomération 32 : 125 liaisons MT directes (postes non atteignables par la voirie).
+Agglomération 32 : troncs BT routés 1108, directs 128.
+RÉUSSITE : 4186 lignes écrites dans plan.ligne.</pre>
+
+  <p class="petit">Document établi le 22 octobre 2026 à partir de la version du
+  moteur validée sur les 11 agglomérations. Les valeurs chiffrées sont celles de
+  la recette interne (<code>plan.agg_statut</code>).</p>
+</section>
+
+<div class="pied">
+  <span>ANSER — Plateforme PLE&nbsp;RDC · Documentation logicielle</span>
+  <span>v1.0 · 22/10/2026</span>
+</div>
+
+</div>
+</body>
+</html>

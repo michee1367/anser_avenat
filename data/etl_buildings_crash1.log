@@ -1,0 +1,175 @@
+15:24:21 INFO    18 fichier(s) bâtiments : bloc1.csv.gz, bloc2.csv.gz, bloc3.csv.gz … …
+15:24:21 INFO    Connexion PostgreSQL : postgres@172.21.240.1:5432/anser_route (mot de passe masqué)
+15:24:27 INFO    Connexion réussie.
+15:24:27 INFO    Lecture de bloc1.csv.gz …
+15:25:09 INFO    chunk 1 inséré (replace, 500000 lignes, total 500000, 32.4s)
+15:25:46 INFO    chunk 2 inséré (append, 500000 lignes, total 1000000, 26.7s)
+15:26:24 INFO    chunk 3 inséré (append, 499307 lignes, total 1499307, 28.1s)
+15:26:24 INFO    Lecture de bloc2.csv.gz …
+15:27:03 INFO    chunk 1 inséré (append, 500000 lignes, total 1999307, 28.6s)
+15:27:43 INFO    chunk 2 inséré (append, 500000 lignes, total 2499307, 29.9s)
+15:28:28 INFO    chunk 3 inséré (append, 500000 lignes, total 2999307, 38.2s)
+15:29:00 INFO    chunk 4 inséré (append, 500000 lignes, total 3499307, 21.2s)
+15:29:23 INFO    chunk 5 inséré (append, 500000 lignes, total 3999307, 16.9s)
+15:29:32 INFO    chunk 6 inséré (append, 211874 lignes, total 4211181, 6.7s)
+15:29:32 INFO    Lecture de bloc3.csv.gz …
+15:29:56 INFO    chunk 1 inséré (append, 500000 lignes, total 4711181, 19.0s)
+15:30:16 INFO    chunk 2 inséré (append, 500000 lignes, total 5211181, 15.3s)
+15:30:34 INFO    chunk 3 inséré (append, 500000 lignes, total 5711181, 15.0s)
+15:30:56 INFO    chunk 4 inséré (append, 500000 lignes, total 6211181, 17.3s)
+15:31:16 INFO    chunk 5 inséré (append, 500000 lignes, total 6711181, 17.2s)
+15:31:36 INFO    chunk 6 inséré (append, 500000 lignes, total 7211181, 16.4s)
+15:31:58 INFO    chunk 7 inséré (append, 500000 lignes, total 7711181, 18.4s)
+15:32:23 INFO    chunk 8 inséré (append, 500000 lignes, total 8211181, 20.9s)
+15:32:47 INFO    chunk 9 inséré (append, 500000 lignes, total 8711181, 20.5s)
+15:33:12 INFO    chunk 10 inséré (append, 500000 lignes, total 9211181, 21.9s)
+15:33:29 INFO    chunk 11 inséré (append, 386455 lignes, total 9597636, 14.2s)
+15:33:30 INFO    Lecture de bloc4.csv.gz …
+15:33:50 INFO    chunk 1 inséré (append, 500000 lignes, total 10097636, 16.9s)
+15:34:13 INFO    chunk 2 inséré (append, 500000 lignes, total 10597636, 18.3s)
+15:34:37 INFO    chunk 3 inséré (append, 500000 lignes, total 11097636, 20.3s)
+15:35:04 INFO    chunk 4 inséré (append, 500000 lignes, total 11597636, 22.5s)
+15:35:27 INFO    chunk 5 inséré (append, 500000 lignes, total 12097636, 19.1s)
+15:35:50 INFO    chunk 6 inséré (append, 500000 lignes, total 12597636, 19.7s)
+15:36:09 INFO    chunk 7 inséré (append, 407010 lignes, total 13004646, 16.8s)
+15:36:09 INFO    Lecture de bloc5.csv.gz …
+15:36:30 INFO    chunk 1 inséré (append, 500000 lignes, total 13504646, 17.7s)
+15:36:51 INFO    chunk 2 inséré (append, 500000 lignes, total 14004646, 17.2s)
+15:36:55 INFO    chunk 3 inséré (append, 122617 lignes, total 14127263, 3.8s)
+15:36:55 INFO    Lecture de bloc6.csv.gz …
+15:37:17 INFO    chunk 1 inséré (append, 500000 lignes, total 14627263, 18.4s)
+15:37:38 INFO    chunk 2 inséré (append, 500000 lignes, total 15127263, 18.1s)
+15:38:05 INFO    chunk 3 inséré (append, 500000 lignes, total 15627263, 21.3s)
+15:38:28 INFO    chunk 4 inséré (append, 500000 lignes, total 16127263, 20.2s)
+15:38:33 INFO    chunk 5 inséré (append, 92459 lignes, total 16219722, 4.0s)
+15:38:33 INFO    Lecture de bloc7.csv.gz …
+15:38:57 INFO    chunk 1 inséré (append, 500000 lignes, total 16719722, 20.4s)
+15:39:03 INFO    chunk 2 inséré (append, 110322 lignes, total 16830044, 4.6s)
+15:39:03 INFO    Lecture de bloc8.csv.gz …
+15:39:25 INFO    chunk 1 inséré (append, 500000 lignes, total 17330044, 17.9s)
+15:39:46 INFO    chunk 2 inséré (append, 500000 lignes, total 17830044, 18.7s)
+15:40:09 INFO    chunk 3 inséré (append, 500000 lignes, total 18330044, 18.6s)
+15:40:30 INFO    chunk 4 inséré (append, 500000 lignes, total 18830044, 18.2s)
+15:40:52 INFO    chunk 5 inséré (append, 500000 lignes, total 19330044, 19.1s)
+15:41:17 INFO    chunk 6 inséré (append, 500000 lignes, total 19830044, 21.8s)
+15:41:44 INFO    chunk 7 inséré (append, 500000 lignes, total 20330044, 22.2s)
+15:42:15 INFO    chunk 8 inséré (append, 500000 lignes, total 20830044, 27.2s)
+15:42:34 INFO    chunk 9 inséré (append, 274597 lignes, total 21104641, 15.6s)
+15:42:34 INFO    Lecture de bloc9.csv.gz …
+15:43:02 INFO    chunk 1 inséré (append, 500000 lignes, total 21604641, 22.4s)
+15:43:28 INFO    chunk 2 inséré (append, 500000 lignes, total 22104641, 21.0s)
+15:43:50 INFO    chunk 3 inséré (append, 500000 lignes, total 22604641, 19.2s)
+15:44:12 ERROR   Échec de l'ETL
+Traceback (most recent call last):
+  File "/mnt/c/Users/PC/Documents/Anser_avenat/data/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 1147, in _commit_impl
+    self.engine.dialect.do_commit(self.connection)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Users/PC/Documents/Anser_avenat/data/venv/lib/python3.14/site-packages/sqlalchemy/engine/default.py", line 715, in do_commit
+    dbapi_connection.commit()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/mnt/c/Users/PC/Documents/Anser_avenat/data/venv/lib/python3.14/site-packages/psycopg/connection.py", line 305, in commit
+    self.wait(self._commit_gen())
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Users/PC/Documents/Anser_avenat/data/venv/lib/python3.14/site-packages/psycopg/connection.py", line 484, in wait
+    return waiting.wait(gen, self.pgconn.socket, interval=interval)
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "psycopg_binary/_psycopg/waiting.pyx", line 241, in psycopg_binary._psycopg.wait_c
+  File "/mnt/c/Users/PC/Documents/Anser_avenat/data/venv/lib/python3.14/site-packages/psycopg/_connection_base.py", line 585, in _commit_gen
+    yield from self._exec_command(b"COMMIT")
+  File "/mnt/c/Users/PC/Documents/Anser_avenat/data/venv/lib/python3.14/site-packages/psycopg/_connection_base.py", line 480, in _exec_command
+    result: PGresult = (yield from generators.execute(self.pgconn))[-1]
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "psycopg_binary/_psycopg/generators.pyx", line 128, in execute
+  File "psycopg_binary/_psycopg/generators.pyx", line 192, in fetch_many
+  File "psycopg_binary/_psycopg/generators.pyx", line 183, in psycopg_binary._psycopg.fetch_many
+  File "psycopg_binary/_psycopg/generators.pyx", line 247, in fetch
+psycopg.OperationalError: consuming input failed: server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/mnt/c/Users/PC/Documents/Anser_avenat/data/etl.py", line 339, in main
+    return args.func(args) or 0
+           ~~~~~~~~~^^^^^^
+  File "/mnt/c/Users/PC/Documents/Anser_avenat/data/etl.py", line 169, in cmd_buildings
+    gdf.to_postgis(
+    ~~~~~~~~~~~~~~^
+        table,
+        ^^^^^^
+    ...<3 lines>...
+        chunksize=50_000,
+        ^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/mnt/c/Users/PC/Documents/Anser_avenat/data/venv/lib/python3.14/site-packages/geopandas/geodataframe.py", line 2471, in to_postgis
+    geopandas.io.sql._write_postgis(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, name, con, schema, if_exists, index, index_label, chunksize, dtype
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/mnt/c/Users/PC/Documents/Anser_avenat/data/venv/lib/python3.14/site-packages/geopandas/io/sql.py", line 451, in _write_postgis
+    with _get_conn(con) as connection:
+         ~~~~~~~~~^^^^^
+  File "/usr/lib/python3.14/contextlib.py", line 148, in __exit__
+    next(self.gen)
+    ~~~~^^^^^^^^^^
+  File "/mnt/c/Users/PC/Documents/Anser_avenat/data/venv/lib/python3.14/site-packages/geopandas/io/sql.py", line 40, in _get_conn
+    with conn_or_engine.begin() as conn:
+         ~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/contextlib.py", line 148, in __exit__
+    next(self.gen)
+    ~~~~^^^^^^^^^^
+  File "/mnt/c/Users/PC/Documents/Anser_avenat/data/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 3260, in begin
+    with conn.begin():
+         ~~~~~~~~~~^^
+  File "/mnt/c/Users/PC/Documents/Anser_avenat/data/venv/lib/python3.14/site-packages/sqlalchemy/engine/util.py", line 147, in __exit__
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "/mnt/c/Users/PC/Documents/Anser_avenat/data/venv/lib/python3.14/site-packages/sqlalchemy/util/langhelpers.py", line 122, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/mnt/c/Users/PC/Documents/Anser_avenat/data/venv/lib/python3.14/site-packages/sqlalchemy/engine/util.py", line 145, in __exit__
+    self.commit()
+    ~~~~~~~~~~~^^
+  File "/mnt/c/Users/PC/Documents/Anser_avenat/data/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 2642, in commit
+    self._do_commit()
+    ~~~~~~~~~~~~~~~^^
+  File "/mnt/c/Users/PC/Documents/Anser_avenat/data/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 2747, in _do_commit
+    self._connection_commit_impl()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/mnt/c/Users/PC/Documents/Anser_avenat/data/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 2718, in _connection_commit_impl
+    self.connection._commit_impl()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/mnt/c/Users/PC/Documents/Anser_avenat/data/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 1149, in _commit_impl
+    self._handle_dbapi_exception(e, None, None, None, None)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Users/PC/Documents/Anser_avenat/data/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 2365, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/mnt/c/Users/PC/Documents/Anser_avenat/data/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 1147, in _commit_impl
+    self.engine.dialect.do_commit(self.connection)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Users/PC/Documents/Anser_avenat/data/venv/lib/python3.14/site-packages/sqlalchemy/engine/default.py", line 715, in do_commit
+    dbapi_connection.commit()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/mnt/c/Users/PC/Documents/Anser_avenat/data/venv/lib/python3.14/site-packages/psycopg/connection.py", line 305, in commit
+    self.wait(self._commit_gen())
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Users/PC/Documents/Anser_avenat/data/venv/lib/python3.14/site-packages/psycopg/connection.py", line 484, in wait
+    return waiting.wait(gen, self.pgconn.socket, interval=interval)
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "psycopg_binary/_psycopg/waiting.pyx", line 241, in psycopg_binary._psycopg.wait_c
+  File "/mnt/c/Users/PC/Documents/Anser_avenat/data/venv/lib/python3.14/site-packages/psycopg/_connection_base.py", line 585, in _commit_gen
+    yield from self._exec_command(b"COMMIT")
+  File "/mnt/c/Users/PC/Documents/Anser_avenat/data/venv/lib/python3.14/site-packages/psycopg/_connection_base.py", line 480, in _exec_command
+    result: PGresult = (yield from generators.execute(self.pgconn))[-1]
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "psycopg_binary/_psycopg/generators.pyx", line 128, in execute
+  File "psycopg_binary/_psycopg/generators.pyx", line 192, in fetch_many
+  File "psycopg_binary/_psycopg/generators.pyx", line 183, in psycopg_binary._psycopg.fetch_many
+  File "psycopg_binary/_psycopg/generators.pyx", line 247, in fetch
+sqlalchemy.exc.OperationalError: (psycopg.OperationalError) consuming input failed: server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+(Background on this error at: https://sqlalche.me/e/20/e3q8)

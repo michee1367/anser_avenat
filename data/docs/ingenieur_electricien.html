@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Documentation électrotechnique — Réseaux MT/BT ANSER</title>
+<link rel="stylesheet" href="style.css">
+<style>
+@page { @bottom-left { content: "ANSER — Plateforme PLE RDC · Documentation électrotechnique"; } }
+@page :first { @bottom-left { content: ""; border-top: none; } @bottom-right { content: ""; border-top: none; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ============================ COUVERTURE ============================ -->
+<section class="couverture">
+  <div class="filet"></div>
+  <h1>Préconception des réseaux de distribution MT/BT</h1>
+  <p class="chapeau">Documentation d'ingénierie électrique — hypothèses de
+  dimensionnement, topologie des réseaux, lecture des résultats et limites du
+  modèle de préconception de la Plateforme PLE&nbsp;RDC.</p>
+
+  <table class="identite">
+    <tr><th>Client</th><td>Agence Nationale de l'Électrification et des Services Énergétiques en Milieu Rural et Périurbain (ANSER)</td></tr>
+    <tr><th>Projet</th><td>Extension de la Plateforme PLE&nbsp;RDC — Module 2 : préconception automatique du réseau de distribution</td></tr>
+    <tr><th>Objet</th><td>Documentation d'ingénierie électrique (règles de conception, résultats, dimensionnement)</td></tr>
+    <tr><th>Version</th><td>1.0 — 22 octobre 2026</td></tr>
+    <tr><th>Périmètre</th><td>11 agglomérations — 413 355 ménages, 2 891 postes HTA/BT</td></tr>
+    <tr><th>Statut</th><td><span class="tampon">Validé — recette interne</span></td></tr>
+  </table>
+
+  <div class="kpi">
+    <div><span class="valeur">413 355</span><span class="libelle">ménages desservis</span></div>
+    <div><span class="valeur">289 MVA</span><span class="libelle">capacité installée (100 kVA/poste)</span></div>
+    <div><span class="valeur">1 756&nbsp;km</span><span class="libelle">réseau MT 30 kV</span></div>
+    <div><span class="valeur">10 837&nbsp;km</span><span class="libelle">desserte BT 0,4 kV</span></div>
+  </div>
+
+  <div class="sommaire">
+    <div><span class="n">1</span>Objet, hypothèses et paramètres</div>
+    <div><span class="n">2</span>Architecture électrique du modèle</div>
+    <div><span class="n">3</span>Règles de conception retenues</div>
+    <div><span class="n">4</span>Résultats par agglomération</div>
+    <div><span class="n">5</span>Lecture et interprétation</div>
+    <div><span class="n">6</span>Qualité de la donnée et limites</div>
+    <div><span class="n">7</span>Passage au dimensionnement électrique</div>
+    <div><span class="n">8</span>Annexes</div>
+  </div>
+
+</section>
+
+<!-- ============================== 1. OBJET ============================= -->
+<section class="sec saute">
+  <h2><span class="num">1</span>Objet, hypothèses et paramètres</h2>
+
+  <p>Le module produit une <strong>préconception géométrique</strong> des réseaux de
+  distribution&nbsp;: implantation des postes HTA/BT, tracé du réseau MT depuis le
+  poste source, desserte BT le long de la voirie et raccordements individuels
+  (épis). Il fournit les <strong>longueurs</strong> et la <strong>topologie</strong>
+  nécessaires au dimensionnement, sans effectuer les calculs électriques
+  eux-mêmes.</p>
+
+  <h3>1.1 Hypothèses de base</h3>
+  <table class="tab">
+    <caption>Hypothèses structurantes du modèle de préconception.</caption>
+    <thead><tr><th style="width:34%">Hypothèse</th><th>Valeur retenue</th><th style="width:26%">Conséquence</th></tr></thead>
+    <tbody>
+      <tr><td>Unité de consommation</td><td>1 bâtiment OSM ≈ 1 ménage</td><td>Pas de distinction logement / activité&nbsp;; sous-estimation possible des usages productifs.</td></tr>
+      <tr><td>Puissance unitaire</td><td>0,5 kVA/ménage</td><td>Poste de 100 kVA ≈ 200 ménages.</td></tr>
+      <tr><td>Ratio de sécurité</td><td>0,85</td><td>Sous-groupes visés à 170 ménages pour absorber la réaffectation finale.</td></tr>
+      <tr><td>Répartition</td><td>Triphasé équilibré</td><td>Aucun calcul de déséquilibre.</td></tr>
+      <tr><td>Topologie</td><td>Antenne (arbre) MT et BT</td><td>Pas de bouclage, pas de secours, pas de reprise.</td></tr>
+      <tr><td>Fond de plan</td><td>Voirie OpenStreetMap</td><td>Le tracé suit la voirie&nbsp;; les lacunes sont signalées.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>1.2 Paramètres de dimensionnement</h3>
+  <table class="tab compact">
+    <thead><tr><th style="width:36%">Paramètre</th><th class="n" style="width:18%">Valeur</th><th>Justification</th></tr></thead>
+    <tbody>
+      <tr><td>Tension du poste source</td><td class="n">220 kV</td><td>Raccordement au réseau de transport (HTB).</td></tr>
+      <tr><td>Tension MT</td><td class="n">30 kV</td><td>Standard de distribution urbaine et périurbaine.</td></tr>
+      <tr><td>Tension BT</td><td class="n">0,4 kV</td><td>230/400 V, réseau de desserte finale.</td></tr>
+      <tr><td>Plafond par poste</td><td class="n">200 ménages</td><td>≈ 100 kVA, puissance normalisée.</td></tr>
+      <tr><td>Accroche au réseau</td><td class="n">1 500 m</td><td>Distance maximale poste → voirie pour un raccordement réaliste.</td></tr>
+      <tr><td>Longueur maximale d'un tronçon MT</td><td class="n">15 km</td><td>Limite de chute de tension et d'exploitation en antenne.</td></tr>
+      <tr><td>Seuil d'épi BT</td><td class="n">150 m</td><td>Au-delà, raccordement individuel hors voirie.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ========================= 2. ARCHITECTURE ELEC ====================== -->
+<section class="sec">
+  <h2><span class="num">2</span>Architecture électrique du modèle</h2>
+
+  <p>Le modèle représente la chaîne classique de distribution&nbsp;: le poste
+  source HTB alimente un réseau MT en antenne, qui dessert des postes HTA/BT de
+  transformation 30/0,4&nbsp;kV&nbsp;; chaque poste alimente sa propre desserte BT
+  le long des rues. Les jonctions MT (sommets de degré ≥ 3) matérialisent les
+  points de branchement vers plusieurs postes.</p>
+
+  <figure class="schema">
+    <svg viewBox="0 0 980 300" role="img" aria-label="Synoptique électrique">
+      <g font-size="11" fill="#16202b">
+        <!-- source HTB -->
+        <rect x="10" y="58" width="150" height="118" rx="4" fill="#eef3f8" stroke="#14314f" stroke-width="1.5"/>
+        <text x="24" y="80" font-weight="700" fill="#14314f" font-size="12">Poste source HTB</text>
+        <text x="24" y="99">220 kV / 30 kV</text>
+        <line x1="24" y1="118" x2="146" y2="118" stroke="#14314f" stroke-width="2.4"/>
+        <line x1="24" y1="126" x2="146" y2="126" stroke="#14314f" stroke-width="2.4"/>
+        <line x1="24" y1="134" x2="146" y2="134" stroke="#14314f" stroke-width="2.4"/>
+        <text x="24" y="158" fill="#4a5a6a" font-size="9.5">jeu de barres 30 kV</text>
+
+        <!-- transformateur source -->
+        <circle cx="196" cy="126" r="17" fill="none" stroke="#14314f" stroke-width="1.8"/>
+        <circle cx="196" cy="152" r="17" fill="none" stroke="#14314f" stroke-width="1.8"/>
+        <text x="180" y="196" font-size="9.5" fill="#4a5a6a">220 / 30 kV</text>
+
+        <!-- jeu de barres MT -->
+        <line x1="236" y1="126" x2="272" y2="126" stroke="#14314f" stroke-width="2.6"/>
+        <line x1="272" y1="66" x2="272" y2="186" stroke="#14314f" stroke-width="3.4"/>
+        <text x="284" y="60" font-size="9.5" fill="#4a5a6a">jeu de barres MT 30 kV</text>
+
+        <!-- feeders -->
+        <line x1="272" y1="84" x2="380" y2="84" stroke="#14314f" stroke-width="2.6"/>
+        <line x1="272" y1="126" x2="380" y2="126" stroke="#14314f" stroke-width="2.6"/>
+        <line x1="272" y1="168" x2="380" y2="168" stroke="#14314f" stroke-width="2.6"/>
+        <text x="286" y="78" font-size="9" fill="#1f5f9e">feeder 1</text>
+        <text x="286" y="120" font-size="9" fill="#1f5f9e">feeder 2</text>
+        <text x="286" y="162" font-size="9" fill="#1f5f9e">feeder 3</text>
+
+        <!-- poste 1 -->
+        <g>
+          <rect x="380" y="58" width="150" height="52" rx="3" fill="#fdf8ef" stroke="#b58b2a" stroke-width="1.3"/>
+          <text x="392" y="75" font-weight="700" fill="#14314f" font-size="10.5">Poste HTA/BT</text>
+          <text x="392" y="90" font-size="9.5">30 kV / 0,4 kV</text>
+          <text x="392" y="104" font-size="9" fill="#4a5a6a">100 kVA · 170 ménages</text>
+          <line x1="452" y1="84" x2="452" y2="84" stroke="none"/>
+          <line x1="380" y1="84" x2="380" y2="84"/>
+        </g>
+        <!-- poste 2 -->
+        <g>
+          <rect x="380" y="100" width="150" height="52" rx="3" fill="#fdf8ef" stroke="#b58b2a" stroke-width="1.3"/>
+          <text x="392" y="117" font-weight="700" fill="#14314f" font-size="10.5">Poste HTA/BT</text>
+          <text x="392" y="132" font-size="9.5">30 kV / 0,4 kV</text>
+          <text x="392" y="146" font-size="9" fill="#4a5a6a">100 kVA · 170 ménages</text>
+        </g>
+        <!-- poste 3 -->
+        <g>
+          <rect x="380" y="142" width="150" height="52" rx="3" fill="#fdf8ef" stroke="#b58b2a" stroke-width="1.3"/>
+          <text x="392" y="159" font-weight="700" fill="#14314f" font-size="10.5">Poste HTA/BT</text>
+          <text x="392" y="174" font-size="9.5">30 kV / 0,4 kV</text>
+          <text x="392" y="188" font-size="9" fill="#4a5a6a">100 kVA · 170 ménages</text>
+        </g>
+
+        <!-- BT depuis poste 1 -->
+        <line x1="530" y1="84" x2="600" y2="84" stroke="#a86a00" stroke-width="2.2"/>
+        <line x1="600" y1="66" x2="600" y2="104" stroke="#a86a00" stroke-width="3"/>
+        <line x1="600" y1="72" x2="700" y2="72" stroke="#a86a00" stroke-width="2.2"/>
+        <line x1="600" y1="84" x2="700" y2="84" stroke="#a86a00" stroke-width="2.2"/>
+        <line x1="600" y1="96" x2="700" y2="96" stroke="#a86a00" stroke-width="2.2"/>
+        <text x="606" y="126" font-size="9" fill="#a86a00">BT 0,4 kV — tronc le long de la rue</text>
+
+        <!-- batiments -->
+        <g stroke="#4a5a6a" stroke-width="1.2" fill="#fff">
+          <rect x="706" y="64" width="13" height="13"/>
+          <rect x="736" y="64" width="13" height="13"/>
+          <rect x="766" y="64" width="13" height="13"/>
+          <rect x="706" y="78" width="13" height="13"/>
+          <rect x="736" y="78" width="13" height="13"/>
+          <rect x="706" y="92" width="13" height="13"/>
+          <rect x="736" y="92" width="13" height="13"/>
+        </g>
+        <text x="706" y="146" font-size="9" fill="#4a5a6a">bâtiments desservis</text>
+
+        <!-- epi -->
+        <line x1="700" y1="72" x2="790" y2="40" stroke="#a86a00" stroke-width="1.4" stroke-dasharray="3 2"/>
+        <rect x="790" y="34" width="13" height="13" fill="#fff" stroke="#4a5a6a" stroke-width="1.2"/>
+        <text x="808" y="45" font-size="9" fill="#a86a00">épi (&gt; 150 m du tronc)</text>
+
+        <!-- legende / annotation -->
+        <rect x="10" y="222" width="960" height="60" rx="3" fill="#f4f6f8" stroke="#c9d2db"/>
+        <text x="24" y="243" font-size="10" font-weight="700" fill="#14314f">Hiérarchie des tensions</text>
+        <text x="24" y="260" font-size="9.5">HTB 220 kV → transformation source → MT 30 kV en antenne (feeders) → postes HTA/BT 30/0,4 kV → desserte BT 0,4 kV.</text>
+        <text x="24" y="275" font-size="9.5" fill="#4a5a6a">Le module ne modélise ni le réseau HTB amont, ni les départs MT existants : le poste source est un nœud unique posé sur la voirie.</text>
+      </g>
+    </svg>
+    <figcaption>Figure 1 — Synoptique de la chaîne de distribution représentée par le modèle.</figcaption>
+  </figure>
+</section>
+
+<!-- =========================== 3. REGLES =============================== -->
+<section class="sec">
+  <h2><span class="num">3</span>Règles de conception retenues</h2>
+
+  <h3>3.1 Implantation des postes</h3>
+  <p>Chaque zone de distribution est découpée en sous-groupes d'au plus
+  200 ménages, visés à 170 (ratio 0,85). Le poste est implanté au barycentre du
+  sous-groupe, puis <strong>accroché à la voirie</strong>&nbsp;: c'est une
+  contrainte de constructibilité (accès, génie civil) et non une contrainte
+  électrique. Lorsque la voirie cartographiée est absente à proximité immédiate,
+  le poste est maintenu sur le réseau le plus proche et signalé.</p>
+
+  <h3>3.2 Réseau MT</h3>
+  <table class="tab compact">
+    <thead><tr><th style="width:30%">Règle</th><th>Mise en œuvre</th></tr></thead>
+    <tbody>
+      <tr><td>Topologie</td><td>Arbre de plus courts chemins depuis le poste source, strictement en antenne.</td></tr>
+      <tr><td>Jonctions</td><td>Sommets de degré ≥ 3&nbsp;; chaque branche est un tronçon homogène identifié.</td></tr>
+      <tr><td>Feeders</td><td>Départs de premier niveau depuis la source&nbsp;; un feeder regroupe les postes d'une même branche.</td></tr>
+      <tr><td>Longueur de tronçon</td><td>15 km maximum&nbsp;; au-delà, le tronçon est refusé et signalé.</td></tr>
+      <tr><td>Tracé</td><td>Le long de la voirie (coût = longueur de l'arête OSM).</td></tr>
+      <tr><td>Postes isolés</td><td>Liaison MT directe (à construire) vers le point le plus proche de l'arbre.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>3.3 Desserte BT</h3>
+  <ul>
+    <li>Un <strong>tronc BT par poste</strong>, arbre de plus courts chemins vers les sommets
+        routiers des bâtiments desservis, tracé le long des rues.</li>
+    <li>Un bâtiment situé à plus de <strong>150 m</strong> du tronc reçoit un
+        <strong>épi</strong>&nbsp;: raccordement individuel en ligne droite (câble aérien ou
+        posé), à construire.</li>
+    <li>Un poste dont tous les bâtiments sont sur son propre sommet n'a pas de tronc&nbsp;:
+        la desserte est entièrement réalisée par épis depuis le poste.</li>
+  </ul>
+
+  <div class="encadre alerte">
+    <span class="titre">Point de vigilances</span>
+    <p>Le plafond de 200 ménages s'applique au découpage initial. L'affectation finale
+    des bâtiments, faite au plus proche du centroïde de zone, peut dépasser ce seuil
+    (maximum observé&nbsp;: <strong>372 ménages</strong>, soit 186 kVA à 0,5 kVA/ménage).
+    Le transformateur doit donc être choisi sur la charge réelle du poste, et non
+    systématiquement à 100 kVA.</p>
+  </div>
+</section>
+
+<!-- =========================== 4. RESULTATS ============================ -->
+<section class="sec">
+  <h2><span class="num">4</span>Résultats par agglomération</h2>
+
+  <p>Les onze agglomérations traitées représentent 891 zones, 413 355 ménages et
+  2 891 postes. Le tableau ci-dessous donne les grandeurs de préconception&nbsp;;
+  le ratio « m BT/bâtiment » mesure la longueur de desserte basse tension par
+  bâtiment raccordé.</p>
+
+  <table class="tab">
+    <caption>Résultats de la recette interne du 22/10/2026.</caption>
+    <thead>
+      <tr>
+        <th>ID</th><th>Agglomération</th><th class="n">Postes</th><th class="n">Jonct.</th>
+        <th class="n">Tr. MT</th><th class="n">km MT</th><th class="n">km BT</th>
+        <th class="n">Épis</th><th class="n">Ménages</th><th class="n">Max/poste</th><th class="n">m BT/bât</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>22</td><td>Kikwit</td><td class="n">582</td><td class="n">142</td><td class="n">679</td><td class="n">326,7</td><td class="n">2 418,9</td><td class="n">4 528</td><td class="n">83 840</td><td class="n">372</td><td class="n">28,9</td></tr>
+      <tr><td>1087</td><td>Bandundu</td><td class="n">329</td><td class="n">74</td><td class="n">362</td><td class="n">201,7</td><td class="n">1 620,1</td><td class="n">5 065</td><td class="n">47 226</td><td class="n">235</td><td class="n">34,3</td></tr>
+      <tr><td>88</td><td>Idiofa</td><td class="n">206</td><td class="n">46</td><td class="n">229</td><td class="n">144,4</td><td class="n">1 132,5</td><td class="n">5 839</td><td class="n">29 897</td><td class="n">227</td><td class="n">37,9</td></tr>
+      <tr><td>3664</td><td>Idiofa</td><td class="n">65</td><td class="n">9</td><td class="n">45</td><td class="n">25,1</td><td class="n">151,3</td><td class="n">3 091</td><td class="n">9 378</td><td class="n">220</td><td class="n">16,1</td></tr>
+      <tr><td>3817</td><td>Gungu</td><td class="n">74</td><td class="n">0</td><td class="n">48</td><td class="n">138,7</td><td class="n">896,8</td><td class="n">4 605</td><td class="n">10 348</td><td class="n">285</td><td class="n">86,7</td></tr>
+      <tr><td>87</td><td>Bulungu</td><td class="n">96</td><td class="n">42</td><td class="n">113</td><td class="n">55,2</td><td class="n">233,3</td><td class="n">1 188</td><td class="n">13 176</td><td class="n">215</td><td class="n">17,7</td></tr>
+      <tr><td>3624</td><td>Idiofa</td><td class="n">47</td><td class="n">0</td><td class="n">27</td><td class="n">1,0</td><td class="n">33,8</td><td class="n">2 055</td><td class="n">6 804</td><td class="n">199</td><td class="n">5,0</td></tr>
+      <tr><td>3783</td><td>Gungu</td><td class="n">81</td><td class="n">18</td><td class="n">83</td><td class="n">71,2</td><td class="n">675,3</td><td class="n">2 920</td><td class="n">11 110</td><td class="n">338</td><td class="n">60,8</td></tr>
+      <tr><td>3520</td><td>Masi-Manimba</td><td class="n">76</td><td class="n">1</td><td class="n">22</td><td class="n">18,3</td><td class="n">101,7</td><td class="n">5 448</td><td class="n">10 736</td><td class="n">244</td><td class="n">9,5</td></tr>
+      <tr><td>3719</td><td>Idiofa</td><td class="n">99</td><td class="n">12</td><td class="n">90</td><td class="n">50,2</td><td class="n">579,5</td><td class="n">3 001</td><td class="n">14 071</td><td class="n">250</td><td class="n">41,2</td></tr>
+      <tr><td>32</td><td>Kisangani</td><td class="n">1 236</td><td class="n">180</td><td class="n">1 176</td><td class="n">723,7</td><td class="n">2 994,2</td><td class="n">26 307</td><td class="n">176 769</td><td class="n">319</td><td class="n">16,9</td></tr>
+    </tbody>
+    <tfoot>
+      <tr><td colspan="2">Total</td><td class="n">2 891</td><td class="n">524</td><td class="n">2 874</td><td class="n">1 756,2</td><td class="n">10 837,4</td><td class="n">64 047</td><td class="n">413 355</td><td class="n">—</td><td class="n">26,2</td></tr>
+    </tfoot>
+  </table>
+
+  <div class="kpi">
+    <div><span class="valeur">1,40</span><span class="libelle">kVA installés / kVA utiles</span></div>
+    <div><span class="valeur">0,61&nbsp;km</span><span class="libelle">MT par poste (moyenne)</span></div>
+    <div><span class="valeur">26,2&nbsp;m</span><span class="libelle">BT par bâtiment (moyenne)</span></div>
+    <div><span class="valeur">15,5 %</span><span class="libelle">bâtiments raccordés par épi</span></div>
+  </div>
+</section>
+
+<!-- ========================== 5. LECTURE ============================== -->
+<section class="sec">
+  <h2><span class="num">5</span>Lecture et interprétation</h2>
+
+  <figure class="schema">
+    <svg viewBox="0 0 980 340" role="img" aria-label="Topologie réseau">
+      <g font-size="10.5" fill="#16202b">
+        <!-- source -->
+        <rect x="16" y="150" width="54" height="38" fill="#14314f"/>
+        <text x="24" y="173" fill="#fff" font-size="10" font-weight="700">HTB</text>
+        <text x="14" y="204" font-size="9" fill="#4a5a6a">source</text>
+
+        <!-- MT -->
+        <line x1="70" y1="169" x2="190" y2="169" stroke="#14314f" stroke-width="4"/>
+        <line x1="190" y1="169" x2="300" y2="110" stroke="#14314f" stroke-width="4"/>
+        <line x1="190" y1="169" x2="300" y2="228" stroke="#14314f" stroke-width="4"/>
+        <line x1="300" y1="110" x2="410" y2="76" stroke="#14314f" stroke-width="4"/>
+        <line x1="300" y1="110" x2="410" y2="146" stroke="#14314f" stroke-width="4"/>
+        <line x1="300" y1="228" x2="410" y2="228" stroke="#14314f" stroke-width="4"/>
+
+        <!-- jonctions -->
+        <circle cx="190" cy="169" r="7" fill="#fff" stroke="#14314f" stroke-width="2.4"/>
+        <circle cx="300" cy="110" r="7" fill="#fff" stroke="#14314f" stroke-width="2.4"/>
+        <circle cx="300" cy="228" r="7" fill="#fff" stroke="#14314f" stroke-width="2.4"/>
+        <text x="176" y="160" font-size="9" fill="#1f5f9e">J1</text>
+        <text x="292" y="100" font-size="9" fill="#1f5f9e">J2</text>
+        <text x="292" y="254" font-size="9" fill="#1f5f9e">J3</text>
+
+        <!-- postes -->
+        <g>
+          <rect x="410" y="66" width="22" height="22" fill="#fdf8ef" stroke="#a86a00" stroke-width="2"/>
+          <text x="440" y="82" font-size="9.5" fill="#14314f" font-weight="600">P1 · 30/0,4 kV</text>
+        </g>
+        <g>
+          <rect x="410" y="136" width="22" height="22" fill="#fdf8ef" stroke="#a86a00" stroke-width="2"/>
+          <text x="440" y="152" font-size="9.5" fill="#14314f" font-weight="600">P2 · 30/0,4 kV</text>
+        </g>
+        <g>
+          <rect x="410" y="218" width="22" height="22" fill="#fdf8ef" stroke="#a86a00" stroke-width="2"/>
+          <text x="440" y="234" font-size="9.5" fill="#14314f" font-weight="600">P3 · 30/0,4 kV</text>
+        </g>
+
+        <!-- BT depuis P2 -->
+        <line x1="432" y1="147" x2="520" y2="147" stroke="#a86a00" stroke-width="2.6"/>
+        <line x1="520" y1="112" x2="520" y2="186" stroke="#a86a00" stroke-width="3.6"/>
+        <line x1="520" y1="120" x2="700" y2="120" stroke="#a86a00" stroke-width="2.4"/>
+        <line x1="520" y1="147" x2="760" y2="147" stroke="#a86a00" stroke-width="2.4"/>
+        <line x1="520" y1="176" x2="660" y2="176" stroke="#a86a00" stroke-width="2.4"/>
+        <text x="522" y="105" font-size="9" fill="#a86a00">tronc BT (SPT le long de la voirie)</text>
+
+        <!-- batiments -->
+        <g fill="#fff" stroke="#4a5a6a" stroke-width="1.3">
+          <rect x="700" y="112" width="13" height="13"/>
+          <rect x="726" y="112" width="13" height="13"/>
+          <rect x="752" y="112" width="13" height="13"/>
+          <rect x="704" y="142" width="13" height="13"/>
+          <rect x="730" y="142" width="13" height="13"/>
+          <rect x="756" y="142" width="13" height="13"/>
+          <rect x="660" y="170" width="13" height="13"/>
+        </g>
+
+        <!-- epis -->
+        <line x1="700" y1="120" x2="790" y2="76" stroke="#a86a00" stroke-width="1.5" stroke-dasharray="4 2.5"/>
+        <line x1="760" y1="147" x2="820" y2="184" stroke="#a86a00" stroke-width="1.5" stroke-dasharray="4 2.5"/>
+        <line x1="660" y1="176" x2="640" y2="216" stroke="#a86a00" stroke-width="1.5" stroke-dasharray="4 2.5"/>
+        <g fill="#fff" stroke="#4a5a6a" stroke-width="1.3">
+          <rect x="790" y="68" width="13" height="13"/>
+          <rect x="820" y="180" width="13" height="13"/>
+          <rect x="634" y="216" width="13" height="13"/>
+        </g>
+
+        <!-- liaison directe MT -->
+        <line x1="410" y1="218" x2="300" y2="228" stroke="#a93226" stroke-width="2" stroke-dasharray="6 3"/>
+        <text x="330" y="270" font-size="9" fill="#a93226">liaison MT directe (à construire)</text>
+
+        <!-- legende -->
+        <rect x="16" y="288" width="700" height="44" rx="3" fill="#f4f6f8" stroke="#c9d2db"/>
+        <line x1="28" y1="304" x2="62" y2="304" stroke="#14314f" stroke-width="4"/><text x="68" y="308" font-size="9">MT 30 kV</text>
+        <line x1="130" y1="304" x2="164" y2="304" stroke="#a86a00" stroke-width="2.6"/><text x="170" y="308" font-size="9">tronc BT 0,4 kV</text>
+        <line x1="270" y1="304" x2="304" y2="304" stroke="#a86a00" stroke-width="1.5" stroke-dasharray="4 2.5"/><text x="310" y="308" font-size="9">épi BT</text>
+        <line x1="366" y1="304" x2="400" y2="304" stroke="#a93226" stroke-width="2" stroke-dasharray="6 3"/><text x="406" y="308" font-size="9">liaison directe</text>
+        <circle cx="516" cy="304" r="6" fill="#fff" stroke="#14314f" stroke-width="2.4"/><text x="528" y="308" font-size="9">jonction</text>
+        <rect x="586" y="298" width="12" height="12" fill="#fdf8ef" stroke="#a86a00" stroke-width="2"/><text x="604" y="308" font-size="9">poste HTA/BT</text>
+        <text x="28" y="324" font-size="9" fill="#4a5a6a">Chaque poste tire son propre tronc BT : les tronçons partagés entre postes voisins sont donc comptés plusieurs fois dans le kilométrage.</text>
+      </g>
+    </svg>
+    <figcaption>Figure 2 — Topologie MT (arbre, jonctions, feeders) et desserte BT d'un poste.</figcaption>
+  </figure>
+
+  <h3>5.1 Charge des postes</h3>
+  <p>La charge moyenne s'établit entre 137 et 145 ménages par poste, avec un
+  90<sup>e</sup> centile voisin de 180 et un maximum de 372 (Kikwit et
+  Kisangani). Cette dispersion est normale&nbsp;: elle résulte de la géométrie des
+  zones et de l'affectation au centroïde, non d'un défaut de découpage. Pour le
+  dimensionnement, il convient de retenir la <strong>charge observée par
+  poste</strong> et de choisir le calibre normalisé immédiatement supérieur
+  (50, 100, 160 ou 250 kVA).</p>
+
+  <h3>5.2 Cohérence des ratios</h3>
+  <table class="tab compact">
+    <thead><tr><th style="width:30%">Indicateur</th><th class="n" style="width:18%">Plage observée</th><th>Interprétation</th></tr></thead>
+    <tbody>
+      <tr><td>MT par poste</td><td class="n">0,02 – 1,87 km</td><td>Faible en zone agglomérée (postes proches de la source), élevée en zone rurale linéaire (Gungu).</td></tr>
+      <tr><td>BT par bâtiment</td><td class="n">5 – 87 m</td><td>Reflète la densité et le maillage de la voirie&nbsp;; 87 m à Gungu signale une trame très lâche, pas une erreur.</td></tr>
+      <tr><td>Épis</td><td class="n">9 – 81 %</td><td>Part des bâtiments hors voirie&nbsp;; élevée là où OpenStreetMap est incomplet (Masi-Manimba, Idiofa).</td></tr>
+      <tr><td>Jonctions MT</td><td class="n">0 – 180</td><td>Zéro jonction = réseau strictement linéaire (3624, 3817).</td></tr>
+    </tbody>
+  </table>
+
+  <div class="encadre note">
+    <span class="titre">Exemple de lecture — Kikwit (22)</span>
+    <p>582 postes × 100 kVA = 58,2 MVA installés pour 83 840 ménages, soit
+    41,9 MVA utiles à 0,5 kVA/ménage&nbsp;: le ratio de 1,39 traduit l'application
+    du plafond de 170 ménages par poste. Un lissage sur les charges réelles
+    (moyenne 144) ramènerait la capacité à environ 48 MVA, soit une économie
+    indicative de 17&nbsp;% sur les transformateurs.</p>
+  </div>
+</section>
+
+<!-- ========================= 6. QUALITE / LIMITES ====================== -->
+<section class="sec">
+  <h2><span class="num">6</span>Qualité de la donnée et limites</h2>
+
+  <h3>6.1 Raccordements directs</h3>
+  <p>Deux replis sont explicitement tracés et comptés&nbsp;: la liaison MT directe
+  pour un poste dont la composante routière n'est pas joignable depuis la source,
+  et la desserte BT intégralement en épis pour un poste dont tous les bâtiments
+  sont sur son propre sommet. Ils traduisent des <strong>lacunes de la voirie
+  OpenStreetMap</strong>, non des erreurs de calcul.</p>
+
+  <table class="tab compact">
+    <thead><tr><th>Agglomération</th><th class="n">Postes</th><th class="n">Liaisons MT directes</th><th class="n">Troncs BT directs</th><th>Contexte</th></tr></thead>
+    <tbody>
+      <tr><td>22 — Kikwit</td><td class="n">582</td><td class="n">0</td><td class="n">4</td><td>Voirie dense</td></tr>
+      <tr><td>32 — Kisangani</td><td class="n">1 236</td><td class="n">125</td><td class="n">128</td><td>Périphérie non cartographiée</td></tr>
+      <tr><td>1087 — Bandundu</td><td class="n">329</td><td class="n">1</td><td class="n">12</td><td>Voirie dense</td></tr>
+      <tr><td>88 — Idiofa</td><td class="n">206</td><td class="n">0</td><td class="n">3</td><td>Voirie dense</td></tr>
+      <tr><td>87 — Bulungu</td><td class="n">96</td><td class="n">6</td><td class="n">3</td><td>Quelques hameaux isolés</td></tr>
+      <tr><td>3817 — Gungu</td><td class="n">74</td><td class="n">42</td><td class="n">32</td><td>Voirie très incomplète</td></tr>
+      <tr><td>3624 — Idiofa</td><td class="n">47</td><td class="n">26</td><td class="n">40</td><td>Réseau routier quasi absent</td></tr>
+      <tr><td>3520 — Masi-Manimba</td><td class="n">76</td><td class="n">6</td><td class="n">35</td><td>Bâti diffus</td></tr>
+      <tr><td>3664 — Idiofa</td><td class="n">65</td><td class="n">9</td><td class="n">20</td><td>Bâti diffus</td></tr>
+      <tr><td>3783 — Gungu</td><td class="n">81</td><td class="n">2</td><td class="n">8</td><td>Voirie partielle</td></tr>
+      <tr><td>3719 — Idiofa</td><td class="n">99</td><td class="n">3</td><td class="n">6</td><td>Voirie partielle</td></tr>
+    </tbody>
+  </table>
+
+  <h3>6.2 Limites à intégrer dans l'étude d'avant-projet</h3>
+  <ul>
+    <li><strong>Pas de calcul de chute de tension</strong>&nbsp;: la longueur des antennes et
+        la charge par poste doivent être vérifiées (voir §7).</li>
+    <li><strong>Pas de foisonnement</strong>&nbsp;: la charge est la somme des ménages à
+        0,5 kVA&nbsp;; la pointe réelle d'un poste résidentiel est plus faible.</li>
+    <li><strong>Troncs BT non mutualisés</strong>&nbsp;: le kilométrage BT est majoré par
+        rapport à un réseau partageant un tronc commun par feeder.</li>
+    <li><strong>Voirie de référence</strong>&nbsp;: le tracé n'est pas un levé topographique&nbsp;;
+        les positions doivent être confirmées sur site (accès, propriété, obstacles).</li>
+    <li><strong>Bâtiments OSM</strong>&nbsp;: exhaustive en ville, partielle en milieu rural&nbsp;;
+        le nombre de ménages est un proxy, non un recensement.</li>
+  </ul>
+</section>
+
+<!-- ======================= 7. DIMENSIONNEMENT ========================== -->
+<section class="sec">
+  <h2><span class="num">7</span>Passage au dimensionnement électrique</h2>
+
+  <p>Les sorties du module fournissent la géométrie et la charge&nbsp;; le
+  dimensionnement s'appuie sur les formules classiques ci-dessous. Les valeurs
+  indicatives sont à adapter aux règles de l'exploitant et au contexte
+  (température, altitude, nature des conducteurs).</p>
+
+  <h3>7.1 Formules de base</h3>
+  <table class="tab compact">
+    <thead><tr><th style="width:34%">Grandeur</th><th>Formule</th><th style="width:30%">Valeurs indicatives</th></tr></thead>
+    <tbody>
+      <tr><td>Courant de ligne</td><td><code>I = P / (√3 · U · cos φ)</code></td><td><code>cos φ ≈ 0,9</code></td></tr>
+      <tr><td>Chute de tension triphasée</td><td><code>ΔU = √3 · ρ · L · I / S</code></td><td>BT ≤ 3–5&nbsp;% · MT ≤ 5–7&nbsp;%</td></tr>
+      <tr><td>Section minimale</td><td><code>S = √3 · ρ · L · I / ΔU<sub>adm</sub></code></td><td>Cu&nbsp;: <code>ρ = 0,0175 Ω·mm²/m</code>&nbsp;; Al&nbsp;: 0,028</td></tr>
+      <tr><td>Puissance de pointe</td><td><code>P = K<sub>n</sub> · Σ P<sub>abonnés</sub></code></td><td><code>K<sub>n</sub> ≈ 0,2–0,5</code> (résidentiel)</td></tr>
+      <tr><td>Calibre du transformateur</td><td><code>S<sub>n</sub> ≥ P<sub>pointe</sub> / cos φ</code></td><td>50 · 100 · 160 · 250 kVA</td></tr>
+    </tbody>
+  </table>
+
+  <h3>7.2 Chaîne de traitement recommandée</h3>
+  <ol>
+    <li><strong>Charger</strong> les résultats (<code>plan.noeud</code>, <code>plan.ligne</code>,
+        <code>plan.derive</code>) et la charge observée par poste.</li>
+    <li><strong>Foisonner</strong> la charge par poste puis par feeder, avec un coefficient
+        adapté au bâti (résidentiel dense, périurbain, rural).</li>
+    <li><strong>Calculer</strong> les courants et les chutes de tension sur chaque tronçon
+        MT, puis sur chaque tronc BT et chaque épi.</li>
+    <li><strong>Dimensionner</strong> les conducteurs (section normalisée immédiatement
+        supérieure), les transformateurs et les départs.</li>
+    <li><strong>Vérifier</strong> les longueurs d'antenne et les seuils de chute&nbsp;; créer des
+        postes supplémentaires si nécessaire, puis rejouer le tracé.</li>
+    <li><strong>Métrer et chiffrer</strong> (câbles, poteaux, appareillage) sur la base des
+        mercuriales de l'exploitant.</li>
+  </ol>
+
+  <div class="encadre">
+    <span class="titre">Critères de conformité à contrôler en priorité</span>
+    <ul>
+      <li>Charge par poste ≤ calibre du transformateur retenu, avec marge de 20&nbsp;%.</li>
+      <li>Chute de tension cumulée BT ≤ 5&nbsp;% au point le plus défavorable (extrémité d'épi).</li>
+      <li>Longueur d'antenne MT ≤ 15 km et chute de tension MT ≤ 7&nbsp;% en bout de feeder.</li>
+      <li>Nombre de départs par feeder compatible avec la protection et la manœuvre.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================== 8. ANNEXES ========================== -->
+<section class="sec">
+  <h2><span class="num">8</span>Annexes</h2>
+
+  <h3>8.1 Glossaire</h3>
+  <table class="tab compact">
+    <tbody>
+      <tr><th style="width:22%">HTB / HTA</th><td>Haute tension B (220 kV, transport) et A (30 kV, distribution).</td></tr>
+      <tr><th>Poste source</th><td>Nœud de transformation HTB/HTA alimentant l'agglomération&nbsp;; unique dans le modèle.</td></tr>
+      <tr><th>Poste HTA/BT</th><td>Transformateur 30/0,4 kV desservant un sous-ensemble de ménages (≈ 200).</td></tr>
+      <tr><th>Feeder</th><td>Départ MT de premier niveau depuis la source, regroupant une branche de l'arbre.</td></tr>
+      <tr><th>Jonction</th><td>Sommet MT de degré ≥ 3 où plusieurs branches se séparent.</td></tr>
+      <tr><th>Tronc BT</th><td>Arbre de desserte basse tension d'un poste, le long de la voirie.</td></tr>
+      <tr><th>Épi</th><td>Raccordement individuel d'un bâtiment éloigné du tronc BT (&gt; 150 m).</td></tr>
+      <tr><th>Liaison directe</th><td>Raccordement hors voirie (MT ou BT), à construire, signalé comme tel.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>8.2 Paramètres et fichiers de référence</h3>
+  <table class="tab compact">
+    <thead><tr><th style="width:32%">Élément</th><th>Valeur / emplacement</th></tr></thead>
+    <tbody>
+      <tr><td>Plafond par poste</td><td>200 ménages (visé 170), option <code>--max-menages-poste</code></td></tr>
+      <tr><td>Accroche au réseau</td><td>1 500 m, option <code>--max-snap-m</code></td></tr>
+      <tr><td>Seuil d'épi</td><td>150 m, option <code>--bt-seuil-epi</code></td></tr>
+      <tr><td>Tronçon MT maximal</td><td>15 km, option <code>--max-troncon-km</code></td></tr>
+      <tr><td>Tensions</td><td><code>--tension-source 220</code>, <code>--tension-mt 30</code>, <code>--tension-bt 0.4</code></td></tr>
+      <tr><td>Résultats</td><td><code>plan.noeud</code>, <code>plan.ligne</code>, <code>plan.derive</code>, <code>plan.agg_statut</code></td></tr>
+      <tr><td>Carte</td><td><code>visu/plan_kwilu.html</code> (autonome, 23,4 Mo)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>8.3 Répartition des ménages par agglomération</h3>
+  <table class="tab compact">
+    <thead><tr><th>Agglomération</th><th class="n">Ménages</th><th class="n">Postes</th><th class="n">Ménages/poste</th><th class="n">kVA utiles</th><th class="n">kVA installés</th></tr></thead>
+    <tbody>
+      <tr><td>Kikwit (22)</td><td class="n">83 840</td><td class="n">582</td><td class="n">144</td><td class="n">41 920</td><td class="n">58 200</td></tr>
+      <tr><td>Kisangani (32)</td><td class="n">176 769</td><td class="n">1 236</td><td class="n">143</td><td class="n">88 385</td><td class="n">123 600</td></tr>
+      <tr><td>Bandundu (1087)</td><td class="n">47 226</td><td class="n">329</td><td class="n">144</td><td class="n">23 613</td><td class="n">32 900</td></tr>
+      <tr><td>Idiofa (88)</td><td class="n">29 897</td><td class="n">206</td><td class="n">145</td><td class="n">14 949</td><td class="n">20 600</td></tr>
+      <tr><td>Autres (7 aggl.)</td><td class="n">75 623</td><td class="n">538</td><td class="n">141</td><td class="n">37 812</td><td class="n">53 800</td></tr>
+    </tbody>
+    <tfoot><tr><td>Total</td><td class="n">413 355</td><td class="n">2 891</td><td class="n">143</td><td class="n">206 678</td><td class="n">289 100</td></tr></tfoot>
+  </table>
+
+  <p class="petit">Document établi le 22 octobre 2026 à partir de la version du
+  moteur validée sur les 11 agglomérations. Les valeurs de charge, de longueur et
+  de ménages proviennent de <code>plan.agg_statut</code> et des tables
+  <code>plan.noeud</code> / <code>plan.ligne</code> / <code>plan.derive</code>.</p>
+</section>
+
+<div class="pied">
+  <span>ANSER — Plateforme PLE&nbsp;RDC · Documentation électrotechnique</span>
+  <span>v1.0 · 22/10/2026</span>
+</div>
+
+</div>
+</body>
+</html>

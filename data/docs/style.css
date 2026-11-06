@@ -1,0 +1,515 @@
+/* ------------------------------------------------------------------ *
+ *  Charte documentaire — ANSER / Plateforme PLE
+ *  Modèle de planification des réseaux de distribution MT/BT
+ *  Cible : A4 imprimé (Chrome headless) + lecture écran
+ * ------------------------------------------------------------------ */
+
+:root {
+  --encre: #16202b;
+  --encre-douce: #4a5a6a;
+  --trait: #c9d2db;
+  --trait-fort: #8fa0b1;
+  --fond-doux: #f4f6f8;
+  --bleu: #14314f;
+  --accent: #1f5f9e;
+  --ambre: #a86a00;
+  --rouge: #a93226;
+  --vert: #1e7a5a;
+  --or: #b58b2a;
+}
+
+@page {
+  size: A4;
+  margin: 15mm 15mm 22mm 15mm;
+
+  @bottom-left {
+    content: "ANSER — Plateforme PLE RDC";
+    width: 62%;
+    vertical-align: top;
+    padding-top: 2.2mm;
+    border-top: .5pt solid #c9d2da;
+    font-family: "Segoe UI", "Calibri", "Helvetica Neue", Arial, sans-serif;
+    font-size: 7.2pt;
+    color: #6b7785;
+  }
+
+  @bottom-right {
+    content: "v1.0 · 22/10/2026 · page " counter(page) " / " counter(pages);
+    width: 38%;
+    vertical-align: top;
+    padding-top: 2.2mm;
+    border-top: .5pt solid #c9d2da;
+    text-align: right;
+    font-family: "Segoe UI", "Calibri", "Helvetica Neue", Arial, sans-serif;
+    font-size: 7.2pt;
+    color: #6b7785;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+body {
+  margin: 0;
+  padding: 0;
+  background: #e9edf1;
+  color: var(--encre);
+  font-family: "Segoe UI", "Calibri", "Helvetica Neue", Arial, sans-serif;
+  font-size: 10.2pt;
+  line-height: 1.45;
+}
+
+.page {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 8mm auto;
+  padding: 16mm 15mm 18mm;
+  background: #fff;
+  box-shadow: 0 3px 18px rgba(20, 40, 60, .18);
+  position: relative;
+}
+
+/* ------------------------------ en-tête ------------------------------ */
+
+.bandeau {
+  border-top: 3.2pt solid var(--bleu);
+  border-bottom: .7pt solid var(--trait-fort);
+  padding: 5mm 0 4mm;
+  margin-bottom: 6mm;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8mm;
+}
+
+.bandeau .marque {
+  font-size: 7.6pt;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 1.6mm;
+}
+
+.bandeau h1 {
+  font-size: 19pt;
+  line-height: 1.15;
+  margin: 0 0 1.8mm;
+  color: var(--bleu);
+  font-weight: 700;
+  letter-spacing: -.2pt;
+}
+
+.bandeau .sous-titre {
+  font-size: 9.6pt;
+  color: var(--encre-douce);
+  margin: 0;
+  max-width: 125mm;
+}
+
+.bandeau .sceau {
+  min-width: 42mm;
+  text-align: right;
+  font-size: 7.4pt;
+  color: var(--encre-douce);
+  line-height: 1.4;
+  border-left: .7pt solid var(--trait);
+  padding-left: 5mm;
+}
+
+.bandeau .sceau strong { color: var(--bleu); font-size: 8.4pt; }
+
+/* --------------------------- bloc d'identité -------------------------- */
+
+.identite {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 7mm;
+  font-size: 8.4pt;
+}
+
+.identite th,
+.identite td {
+  border: .6pt solid var(--trait);
+  padding: 1.6mm 2.4mm;
+  text-align: left;
+  vertical-align: top;
+}
+
+.identite th {
+  background: var(--fond-doux);
+  color: var(--encre-douce);
+  font-weight: 600;
+  width: 17%;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  font-size: 7.2pt;
+}
+
+/* ------------------------------ sections ------------------------------ */
+
+.sec { margin: 0 0 6mm; }
+
+.sec > h2 {
+  font-size: 11.4pt;
+  color: var(--bleu);
+  text-transform: uppercase;
+  letter-spacing: .055em;
+  margin: 7mm 0 2.6mm;
+  padding-bottom: 1.4mm;
+  border-bottom: 1.1pt solid var(--bleu);
+  display: flex;
+  align-items: baseline;
+  gap: 3mm;
+  break-after: avoid;
+}
+
+.sec > h2 .num {
+  font-size: 14pt;
+  color: var(--accent);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+h3 {
+  font-size: 10pt;
+  color: var(--bleu);
+  margin: 4.4mm 0 1.6mm;
+  break-after: avoid;
+}
+
+h4 {
+  font-size: 9.4pt;
+  color: var(--encre);
+  margin: 3.2mm 0 1.2mm;
+  break-after: avoid;
+}
+
+p { margin: 0 0 2.4mm; text-align: justify; hyphens: auto; }
+
+strong { color: var(--bleu); }
+
+a { color: var(--accent); text-decoration: none; }
+
+/* ------------------------------- listes ------------------------------- */
+
+ul, ol { margin: 0 0 2.6mm; padding-left: 5.2mm; }
+
+li { margin: 0 0 1.1mm; break-inside: avoid; }
+
+ul { list-style: none; }
+
+ul > li::before {
+  content: "";
+  display: inline-block;
+  width: 1.6mm;
+  height: 1.6mm;
+  background: var(--accent);
+  margin: 0 2.2mm 0 -4.4mm;
+  vertical-align: .35mm;
+}
+
+ul.simple > li::before { background: var(--trait-fort); }
+
+ol > li::marker { color: var(--accent); font-weight: 600; }
+
+/* ------------------------------- tableaux ----------------------------- */
+
+table.tab {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 8.5pt;
+  margin: 2mm 0 4mm;
+  break-inside: avoid;
+}
+
+table.tab caption {
+  caption-side: top;
+  text-align: left;
+  font-size: 8pt;
+  color: var(--encre-douce);
+  font-style: italic;
+  padding-bottom: 1.2mm;
+}
+
+table.tab th {
+  background: var(--bleu);
+  color: #fff;
+  font-weight: 600;
+  text-align: left;
+  padding: 1.7mm 2mm;
+  border: .5pt solid var(--bleu);
+  font-size: 7.9pt;
+  letter-spacing: .02em;
+}
+
+table.tab td {
+  border: .5pt solid var(--trait);
+  padding: 1.5mm 2mm;
+  vertical-align: top;
+}
+
+table.tab tbody tr:nth-child(even) td { background: #f7f9fb; }
+
+table.tab td.n, table.tab th.n { text-align: right; white-space: nowrap; }
+
+table.tab tfoot td {
+  background: var(--fond-doux);
+  font-weight: 700;
+  border-top: 1pt solid var(--trait-fort);
+}
+
+table.tab.compact { font-size: 8pt; }
+table.tab.compact td, table.tab.compact th { padding: 1.2mm 1.6mm; }
+
+/* ------------------------------- encadrés ----------------------------- */
+
+.encadre {
+  border-left: 2.6pt solid var(--accent);
+  background: #f3f7fb;
+  padding: 2.8mm 3.4mm;
+  margin: 2.6mm 0 4mm;
+  font-size: 9pt;
+  break-inside: avoid;
+}
+
+.encadre p:last-child, .encadre ul:last-child { margin-bottom: 0; }
+
+.encadre .titre {
+  display: block;
+  font-size: 7.6pt;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 1.2mm;
+}
+
+.encadre.alerte { border-left-color: var(--rouge); background: #fbf4f3; }
+.encadre.alerte .titre { color: var(--rouge); }
+
+.encadre.note { border-left-color: var(--ambre); background: #fdf8ef; }
+.encadre.note .titre { color: var(--ambre); }
+
+/* ------------------------------- chiffres ----------------------------- */
+
+.kpi {
+  display: flex;
+  gap: 3mm;
+  margin: 0 0 5mm;
+  break-inside: avoid;
+}
+
+.kpi > div {
+  flex: 1;
+  border: .6pt solid var(--trait);
+  border-top: 2.4pt solid var(--accent);
+  padding: 2.6mm 3mm;
+  background: #fff;
+}
+
+.kpi .valeur {
+  display: block;
+  font-size: 15pt;
+  font-weight: 700;
+  color: var(--bleu);
+  line-height: 1.1;
+}
+
+.kpi .libelle {
+  display: block;
+  font-size: 7.4pt;
+  color: var(--encre-douce);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-top: .8mm;
+}
+
+/* ------------------------------- schémas ------------------------------ */
+
+figure.schema {
+  margin: 3mm 0 5mm;
+  break-inside: avoid;
+}
+
+figure.schema svg { width: 100%; height: auto; display: block; }
+
+figure.schema figcaption {
+  font-size: 7.8pt;
+  color: var(--encre-douce);
+  font-style: italic;
+  margin-top: 1.6mm;
+  text-align: center;
+}
+
+figure.schema svg text {
+  font-family: "Segoe UI", "Calibri", Arial, sans-serif;
+}
+
+/* ------------------------------ code / DDL ---------------------------- */
+
+pre.code {
+  background: #f5f7f9;
+  border: .6pt solid var(--trait);
+  border-left: 2.2pt solid var(--trait-fort);
+  padding: 2.6mm 3mm;
+  font-family: "Cascadia Mono", "Consolas", "Courier New", monospace;
+  font-size: 7.7pt;
+  line-height: 1.35;
+  overflow: hidden;
+  margin: 2mm 0 3.4mm;
+  break-inside: avoid;
+  white-space: pre-wrap;
+}
+
+code {
+  font-family: "Cascadia Mono", "Consolas", "Courier New", monospace;
+  font-size: 8.6pt;
+  background: #f0f3f6;
+  padding: .2mm .8mm;
+  border: .4pt solid #e2e8ee;
+}
+
+/* ------------------------------- sommaire ----------------------------- */
+
+.sommaire {
+  columns: 2;
+  column-gap: 10mm;
+  font-size: 9.2pt;
+  margin: 2mm 0 5mm;
+}
+
+.sommaire div {
+  break-inside: avoid;
+  padding: 1.2mm 0;
+  border-bottom: .4pt dotted var(--trait);
+}
+
+.sommaire .n {
+  display: inline-block;
+  width: 6mm;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* ------------------------------- couverture --------------------------- */
+
+.couverture { padding-top: 30mm; min-height: 252mm; position: relative; }
+
+.couverture .filet {
+  width: 28mm;
+  height: 2.6pt;
+  background: var(--or);
+  margin-bottom: 8mm;
+}
+
+.couverture h1 {
+  font-size: 27pt;
+  line-height: 1.12;
+  color: var(--bleu);
+  margin: 0 0 4mm;
+  letter-spacing: -.4pt;
+}
+
+.couverture .chapeau {
+  font-size: 12pt;
+  color: var(--encre-douce);
+  max-width: 150mm;
+  margin-bottom: 14mm;
+  line-height: 1.5;
+}
+
+.couverture .destinataires {
+  font-size: 9pt;
+  color: var(--encre-douce);
+  border-top: .7pt solid var(--trait);
+  padding-top: 4mm;
+  max-width: 150mm;
+}
+
+.couverture .destinataires strong { display: block; color: var(--bleu); margin-bottom: 1.2mm; }
+
+.couverture .bas {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  font-size: 8pt;
+  color: var(--encre-douce);
+  border-top: .5pt solid var(--trait);
+  padding-top: 2.4mm;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* ------------------------------- pied de page ------------------------- */
+
+.pied {
+  margin-top: 8mm;
+  padding-top: 2.2mm;
+  border-top: .5pt solid var(--trait);
+  font-size: 7.2pt;
+  color: var(--encre-douce);
+  display: flex;
+  justify-content: space-between;
+  gap: 6mm;
+}
+
+/* ------------------------------- utilitaires -------------------------- */
+
+.deux-colonnes { display: flex; gap: 6mm; }
+.deux-colonnes > * { flex: 1; min-width: 0; }
+
+.petit { font-size: 8.4pt; color: var(--encre-douce); }
+
+.legende {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4mm;
+  font-size: 8pt;
+  color: var(--encre-douce);
+  margin: 1mm 0 3mm;
+}
+
+.legende span::before {
+  content: "";
+  display: inline-block;
+  width: 7mm;
+  height: 1.6mm;
+  margin-right: 1.6mm;
+  vertical-align: .3mm;
+  background: var(--trait-fort);
+}
+
+.legende .mt::before { background: var(--bleu); height: 2.2mm; }
+.legende .bt::before { background: var(--ambre); }
+.legende .dir::before { background: repeating-linear-gradient(90deg, var(--rouge) 0 1.6mm, transparent 1.6mm 3mm); }
+.legende .epi::before { background: repeating-linear-gradient(90deg, var(--ambre) 0 .7mm, transparent .7mm 1.8mm); height: 1mm; }
+
+.tampon {
+  display: inline-block;
+  font-size: 7pt;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--vert);
+  border: .7pt solid var(--vert);
+  padding: .6mm 2mm;
+  font-weight: 700;
+}
+
+/* ------------------------------- impression --------------------------- */
+
+@media print {
+  body { background: #fff; font-size: 10pt; }
+  .page { width: auto; min-height: 0; margin: 0; padding: 0; box-shadow: none; }
+  .pied { display: none; }
+  .couverture { padding-top: 26mm; min-height: 250mm; break-after: page; }
+  a { color: inherit; }
+  .saute { break-before: page; }
+}
+
+@media screen and (max-width: 230mm) {
+  .page { width: auto; margin: 0; padding: 8mm; }
+}

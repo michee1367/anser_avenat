@@ -1,0 +1,7 @@
+geopandas>=1.0
+pandas>=2.0
+shapely>=2.0
+sqlalchemy>=2.0
+psycopg[binary]>=3.1
+pyogrio>=0.9
+python-dotenv>=1.0
